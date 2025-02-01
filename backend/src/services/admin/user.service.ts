@@ -1,6 +1,7 @@
 import { UserRepository } from "../../repositories/user.repository";
 import type { createAdminUserDto } from "../../dtos/user.dto";
 import type { UpdateUserDto } from "../../dtos/user.dto";
+import type { PaginationDto } from "../../dtos/pagination.dto";
 import bcryptjs from "bcryptjs";
 import { HttpError } from "../../errors/http-error";
 
@@ -62,12 +63,22 @@ export class AdminUserService {
     return updateUser;
   }
 
-  async getAllUsers() {
-    const users = await userRepository.getAllUsers();
-    if (!users || users.length === 0) {
-      return [];
+  async getAllUsers(pagination?: PaginationDto) {
+    if (!pagination) {
+      const users = await userRepository.getAllUsers();
+      return { data: users ?? [], total: users?.length ?? 0, page: 1, limit: users?.length ?? 0, totalPages: 1 };
     }
-    return users;
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
+    const { users, total } = await userRepository.getUsersPaginated(skip, limit);
+    const totalPages = Math.ceil(total / limit);
+    return {
+      data: users,
+      total,
+      page,
+      limit,
+      totalPages,
+    };
   }
 }
 

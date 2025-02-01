@@ -1,10 +1,16 @@
 import { UserModel, IUser } from "../models/user.model";
 
+export interface PaginatedUsersResult {
+  users: IUser[];
+  total: number;
+}
+
 export interface IUserRepository {
   createUser(userData: Partial<IUser>): Promise<IUser>;
   getUserByEmail(email: string): Promise<IUser | null>;
   getUserById(userId: string): Promise<IUser | null>;
   getAllUsers(): Promise<IUser[]>;
+  getUsersPaginated(skip: number, limit: number): Promise<PaginatedUsersResult>;
   updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser | null>;
   deleteUser(userId: string): Promise<boolean | null>;
 }
@@ -18,6 +24,17 @@ export class UserRepository implements IUserRepository {
   async getAllUsers(): Promise<IUser[]> {
     const users = await UserModel.find().select("-password");
     return users;
+  }
+
+  async getUsersPaginated(
+    skip: number,
+    limit: number
+  ): Promise<PaginatedUsersResult> {
+    const [users, total] = await Promise.all([
+      UserModel.find().select("-password").skip(skip).limit(limit).lean(),
+      UserModel.countDocuments(),
+    ]);
+    return { users: users as IUser[], total };
   }
 
   async updateUser(

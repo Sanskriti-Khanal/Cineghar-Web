@@ -4,6 +4,7 @@ import {
   createAdminUserDto,
   UpdateUserDto,
 } from "../../dtos/user.dto";
+import { PaginationDto } from "../../dtos/pagination.dto";
 import z from "zod";
 
 let adminUserService = new AdminUserService();
@@ -56,10 +57,23 @@ export class AdminUserController {
 
   async getAllUsers(req: Request, res: Response) {
     try {
-      const users = await adminUserService.getAllUsers();
+      const parsed = PaginationDto.safeParse(req.query);
+      if (!parsed.success) {
+        return res.status(400).json({
+          success: false,
+          message: z.prettifyError(parsed.error),
+        });
+      }
+      const result = await adminUserService.getAllUsers(parsed.data);
       return res.status(200).json({
         success: true,
-        data: users,
+        data: result.data,
+        meta: {
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: result.totalPages,
+        },
         message: "Users fetched successfully",
       });
     } catch (error: Error | any) {

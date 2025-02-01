@@ -8,8 +8,25 @@ interface ApiResponse<T> {
   data: T;
 }
 
-export const getAdminUsersApi = async () => {
-  const { data } = await axios.get<ApiResponse<AuthUser[]>>(API.ADMIN.USERS);
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedApiResponse<T> extends ApiResponse<T> {
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export const getAdminUsersApi = async (params?: PaginationParams) => {
+  const { data } = await axios.get<PaginatedApiResponse<AuthUser[]>>(
+    API.ADMIN.USERS,
+    { params: params ?? {} }
+  );
   return data;
 };
 

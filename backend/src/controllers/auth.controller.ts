@@ -226,6 +226,7 @@ export class AuthController {
           message: z.prettifyError(parsed.error),
         });
       }
+      await userService.requestPasswordReset(parsed.data.email);
       // Always return success to avoid leaking whether the email exists
       return res.status(200).json({
         success: true,

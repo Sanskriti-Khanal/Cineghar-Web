@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { UserRepository } from "../repositories/user.repository";
 import { createUserDto } from "../dtos/user.dto";
 import type { LoginUserDto, UpdateUserDto } from "../dtos/user.dto";
@@ -5,6 +6,8 @@ import bcryptjs from "bcryptjs";
 import { HttpError } from "../errors/http-error";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../configs";
+
+const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
 let userRepository = new UserRepository();
 
@@ -93,6 +96,20 @@ export class UserService {
     const userResponse = user.toObject();
     delete userResponse.password;
     return { token, user: userResponse };
+  }
+
+  /** Generate secure reset token and save with expiry; no-op if user not found. */
+  async requestPasswordReset(email: string): Promise<void> {
+    const user = await userRepository.getUserByEmail(email);
+    if (!user) return;
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS);
+
+    await userRepository.updateUser(user._id.toString(), {
+      resetPasswordToken: token,
+      resetPasswordExpires: expires,
+    });
   }
 }
 

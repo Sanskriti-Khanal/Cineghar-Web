@@ -10,6 +10,7 @@ export interface IUserRepository {
   getUserByEmail(email: string): Promise<IUser | null>;
   getUserById(userId: string): Promise<IUser | null>;
   getAllUsers(): Promise<IUser[]>;
+  findAllPaginated(page: number, limit: number): Promise<PaginatedUsersResult>;
   getUsersPaginated(skip: number, limit: number): Promise<PaginatedUsersResult>;
   updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser | null>;
   deleteUser(userId: string): Promise<boolean | null>;
@@ -24,6 +25,18 @@ export class UserRepository implements IUserRepository {
   async getAllUsers(): Promise<IUser[]> {
     const users = await UserModel.find().select("-password");
     return users;
+  }
+
+  async findAllPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginatedUsersResult> {
+    const skip = (page - 1) * limit;
+    const [users, total] = await Promise.all([
+      UserModel.find().select("-password").skip(skip).limit(limit).lean(),
+      UserModel.countDocuments(),
+    ]);
+    return { users: users as IUser[], total };
   }
 
   async getUsersPaginated(

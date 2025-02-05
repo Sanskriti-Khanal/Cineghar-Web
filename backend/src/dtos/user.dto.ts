@@ -31,6 +31,12 @@ export const LoginUserDto = z.object({
 
 export type LoginUserDto = z.infer<typeof LoginUserDto>;
 
+export const ForgotPasswordDto = z.object({
+  email: z.string().email(),
+});
+
+export type ForgotPasswordDto = z.infer<typeof ForgotPasswordDto>;
+
 // Admin create user (multipart body; image from file)
 export const createAdminUserDto = UserSchema.pick({
   name: true,

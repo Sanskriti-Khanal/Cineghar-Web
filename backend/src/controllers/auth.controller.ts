@@ -4,6 +4,7 @@ import {
   createUserDto,
   LoginUserDto,
   UpdateUserDto,
+  ForgotPasswordDto,
 } from "../dtos/user.dto";
 import z from "zod";
 
@@ -207,6 +208,29 @@ export class AuthController {
         message: "Login successful",
         data: user,
         token,
+      });
+    } catch (error: Error | any) {
+      return res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response) {
+    try {
+      const parsed = ForgotPasswordDto.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          success: false,
+          message: z.prettifyError(parsed.error),
+        });
+      }
+      // Always return success to avoid leaking whether the email exists
+      return res.status(200).json({
+        success: true,
+        message:
+          "If an account exists with this email, you will receive password reset instructions.",
       });
     } catch (error: Error | any) {
       return res.status(error.statusCode || 500).json({

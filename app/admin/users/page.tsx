@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { getAdminUsersApi } from "@/lib/api/admin";
 import type { AuthUser } from "@/lib/api/auth";
@@ -8,24 +8,37 @@ import type { AuthUser } from "@/lib/api/auth";
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [limit] = useState(DEFAULT_LIMIT);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchUsers = useCallback(async (p: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getAdminUsersApi({ page: p, limit });
+      setUsers(res.data ?? []);
+      setTotalPages(res.totalPages ?? 0);
+      setTotalUsers(res.totalUsers ?? 0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load users");
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [limit]);
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await getAdminUsersApi();
-        setUsers(res.data ?? []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load users");
-      } finally {
-        setLoading(false);
-      }
-    };
-    void fetchUsers();
-  }, []);
+    void fetchUsers(page);
+  }, [page, fetchUsers]);
 
   if (loading) {
     return (
@@ -40,7 +53,9 @@ export default function AdminUsersPage() {
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-          <p className="mt-1 text-sm text-gray-500">View and manage all users</p>
+          <p className="mt-1 text-sm text-gray-500">
+            View and manage all users {totalUsers > 0 && `(${totalUsers} total)`}
+          </p>
         </div>
         <Link
           href="/admin/users/create"
@@ -145,6 +160,32 @@ export default function AdminUsersPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+          <p className="text-sm text-gray-600">
+            Page {page} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1 || loading}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages || loading}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

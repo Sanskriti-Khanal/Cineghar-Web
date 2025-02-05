@@ -18,7 +18,7 @@ router.post(
   adminUserController.createUser.bind(adminUserController)
 );
 
-// GET /api/admin/users
+// GET /api/admin/users - admin only; query: page, limit; response: { data, page, limit, totalPages, totalUsers }
 router.get(
   "/",
   authorizedMiddleware,

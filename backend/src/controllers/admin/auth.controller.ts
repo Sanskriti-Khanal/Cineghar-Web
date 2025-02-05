@@ -68,12 +68,10 @@ export class AdminUserController {
       return res.status(200).json({
         success: true,
         data: result.data,
-        meta: {
-          total: result.total,
-          page: result.page,
-          limit: result.limit,
-          totalPages: result.totalPages,
-        },
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+        totalUsers: result.total,
         message: "Users fetched successfully",
       });
     } catch (error: Error | any) {

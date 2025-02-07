@@ -120,5 +120,19 @@ export class UserService {
       // Do not throw; API still returns generic success to avoid leaking user existence
     }
   }
+
+  /** Verify token + expiry, hash new password, update user and clear reset token. */
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await userRepository.getUserByResetToken(token);
+    if (!user) {
+      throw new HttpError(400, "Invalid or expired reset token");
+    }
+
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+    await userRepository.setPasswordAndClearResetToken(
+      user._id.toString(),
+      hashedPassword
+    );
+  }
 }
 

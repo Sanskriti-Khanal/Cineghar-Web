@@ -9,10 +9,15 @@ export interface IUserRepository {
   createUser(userData: Partial<IUser>): Promise<IUser>;
   getUserByEmail(email: string): Promise<IUser | null>;
   getUserById(userId: string): Promise<IUser | null>;
+  getUserByResetToken(token: string): Promise<IUser | null>;
   getAllUsers(): Promise<IUser[]>;
   findAllPaginated(page: number, limit: number): Promise<PaginatedUsersResult>;
   getUsersPaginated(skip: number, limit: number): Promise<PaginatedUsersResult>;
   updateUser(userId: string, updateData: Partial<IUser>): Promise<IUser | null>;
+  setPasswordAndClearResetToken(
+    userId: string,
+    hashedPassword: string
+  ): Promise<IUser | null>;
   deleteUser(userId: string): Promise<boolean | null>;
 }
 
@@ -60,6 +65,21 @@ export class UserRepository implements IUserRepository {
     return updateUser;
   }
 
+  async setPasswordAndClearResetToken(
+    userId: string,
+    hashedPassword: string
+  ): Promise<IUser | null> {
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
+      {
+        password: hashedPassword,
+        $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 },
+      },
+      { new: true }
+    ).select("-password");
+    return user;
+  }
+
   async deleteUser(userId: string): Promise<boolean | null> {
     const result = await UserModel.findByIdAndDelete(userId);
     return result ? true : false;
@@ -73,6 +93,14 @@ export class UserRepository implements IUserRepository {
 
   async getUserByEmail(email: string): Promise<IUser | null> {
     const user = await UserModel.findOne({ email: email });
+    return user;
+  }
+
+  async getUserByResetToken(token: string): Promise<IUser | null> {
+    const user = await UserModel.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
     return user;
   }
 }

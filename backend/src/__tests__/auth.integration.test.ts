@@ -105,6 +105,78 @@ describe("Auth integration tests", () => {
     });
   });
 
+  describe("POST /api/auth/forgot-password", () => {
+    it("valid email returns success", async () => {
+      // Register a user first
+      await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Forgot Password User",
+          email: "forgot@example.com",
+          password: "password123",
+          confirmPassword: "password123",
+        })
+        .expect(201);
+
+      const res = await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "forgot@example.com",
+        })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toMatch(/password reset instructions/i);
+    });
+
+    it("valid email format returns success even if email doesn't exist", async () => {
+      // Test that API doesn't leak whether email exists
+      const res = await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "nonexistent@example.com",
+        })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toMatch(/password reset instructions/i);
+    });
+
+    it("invalid email returns error - not an email format", async () => {
+      const res = await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "notanemail",
+        })
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBeDefined();
+    });
+
+    it("invalid email returns error - missing email field", async () => {
+      const res = await request(app)
+        .post("/api/auth/forgot-password")
+        .send({})
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBeDefined();
+    });
+
+    it("invalid email returns error - empty string", async () => {
+      const res = await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "",
+        })
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBeDefined();
+    });
+  });
+
   describe("User CRUD", () => {
     it("get user by ID works", async () => {
       const registerRes = await request(app)

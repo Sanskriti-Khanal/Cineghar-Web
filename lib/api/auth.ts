@@ -81,3 +81,11 @@ export const updateUserByIdApi = async (id: string, formData: FormData) => {
   return data;
 };
 
+export const forgotPasswordApi = async (email: string) => {
+  const { data } = await axios.post<ApiResponse<unknown>>(
+    API.AUTH.FORGOT_PASSWORD,
+    { email }
+  );
+  return data;
+};
+

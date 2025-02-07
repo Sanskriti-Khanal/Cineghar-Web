@@ -77,10 +77,15 @@ const LoginForm = () => {
             {...register("password")}
           />
 
-          <Checkbox
-            label="Keep me logged in"
-            {...register("rememberMe")}
-          />
+          <div className="flex items-center justify-between">
+            <Checkbox
+              label="Keep me logged in"
+              {...register("rememberMe")}
+            />
+            <Link href="/forgot-password" className="text-sm text-[#8B0000] hover:text-[#6B0000] font-medium no-underline">
+              Forgot password?
+            </Link>
+          </div>
 
           <Button
             type="submit"

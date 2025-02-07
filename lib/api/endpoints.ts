@@ -2,6 +2,8 @@ export const API = {
   AUTH: {
     LOGIN: "/api/auth/login",
     REGISTER: "/api/auth/register",
+    FORGOT_PASSWORD: "/api/auth/forgot-password",
+    RESET_PASSWORD: "/api/auth/reset-password",
     WHOAMI: "/api/auth/whoami",
     UPDATE_PROFILE: "/api/auth/update-profile",
     UPDATE_BY_ID: (id: string) => `/api/auth/${id}`,

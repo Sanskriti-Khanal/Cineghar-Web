@@ -177,6 +177,152 @@ describe("Auth integration tests", () => {
     });
   });
 
+  describe("POST /api/auth/reset-password", () => {
+    it("valid token resets password", async () => {
+      // Register user
+      await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Reset Password User",
+          email: "reset@example.com",
+          password: "oldpassword",
+          confirmPassword: "oldpassword",
+        })
+        .expect(201);
+
+      // Request password reset
+      await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "reset@example.com",
+        })
+        .expect(200);
+
+      // Get token from DB
+      const user = await UserModel.findOne({ email: "reset@example.com" });
+      expect(user).toBeDefined();
+      expect(user?.resetPasswordToken).toBeDefined();
+      const token = user!.resetPasswordToken!;
+
+      // Reset password with valid token
+      const res = await request(app)
+        .post("/api/auth/reset-password")
+        .send({
+          token: token,
+          password: "newpassword123",
+          confirmPassword: "newpassword123",
+        })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toMatch(/password.*reset.*success/i);
+
+      // Verify can login with new password
+      const loginRes = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: "reset@example.com",
+          password: "newpassword123",
+        })
+        .expect(200);
+
+      expect(loginRes.body.success).toBe(true);
+      expect(loginRes.body.token).toBeDefined();
+
+      // Verify old password doesn't work
+      await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: "reset@example.com",
+          password: "oldpassword",
+        })
+        .expect(401);
+
+      // Verify token was cleared (can't reuse)
+      const reuseRes = await request(app)
+        .post("/api/auth/reset-password")
+        .send({
+          token: token,
+          password: "anotherpassword",
+          confirmPassword: "anotherpassword",
+        })
+        .expect(400);
+
+      expect(reuseRes.body.success).toBe(false);
+      expect(reuseRes.body.message).toMatch(/invalid|expired/i);
+    });
+
+    it("expired token rejected", async () => {
+      // Register user
+      await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Expired Token User",
+          email: "expired@example.com",
+          password: "password123",
+          confirmPassword: "password123",
+        })
+        .expect(201);
+
+      // Request password reset
+      await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "expired@example.com",
+        })
+        .expect(200);
+
+      // Get token and manually expire it
+      const user = await UserModel.findOne({ email: "expired@example.com" });
+      expect(user).toBeDefined();
+      const token = user!.resetPasswordToken!;
+
+      // Set expiry to past
+      await UserModel.findByIdAndUpdate(user!._id, {
+        resetPasswordExpires: new Date(Date.now() - 1000), // 1 second ago
+      });
+
+      // Try to reset with expired token
+      const res = await request(app)
+        .post("/api/auth/reset-password")
+        .send({
+          token: token,
+          password: "newpassword123",
+          confirmPassword: "newpassword123",
+        })
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toMatch(/invalid|expired/i);
+    });
+
+    it("invalid token rejected", async () => {
+      // Register user
+      await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Invalid Token User",
+          email: "invalid@example.com",
+          password: "password123",
+          confirmPassword: "password123",
+        })
+        .expect(201);
+
+      // Try to reset with random/invalid token
+      const res = await request(app)
+        .post("/api/auth/reset-password")
+        .send({
+          token: "invalid-token-that-does-not-exist",
+          password: "newpassword123",
+          confirmPassword: "newpassword123",
+        })
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toMatch(/invalid|expired/i);
+    });
+  });
+
   describe("User CRUD", () => {
     it("get user by ID works", async () => {
       const registerRes = await request(app)

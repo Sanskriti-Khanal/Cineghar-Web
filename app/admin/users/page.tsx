@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { getAdminUsersApi } from "@/lib/api/admin";
+import { getAdminUsersApi, deleteAdminUserApi } from "@/lib/api/admin";
 import type { AuthUser } from "@/lib/api/auth";
 
 const API_BASE =
@@ -19,6 +19,7 @@ export default function AdminUsersPage() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async (p: number) => {
     setLoading(true);
@@ -39,6 +40,38 @@ export default function AdminUsersPage() {
   useEffect(() => {
     void fetchUsers(page);
   }, [page, fetchUsers]);
+
+  const handleDelete = async (userId: string, userName: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete user "${userName}"? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    setDeletingUserId(userId);
+    setError(null);
+    try {
+      await deleteAdminUserApi(userId);
+      // Refresh the list after successful delete
+      const res = await getAdminUsersApi({ page, limit });
+      const newUsers = res.data ?? [];
+      const newTotalPages = res.totalPages ?? 0;
+
+      // If current page is empty and we're not on page 1, go to previous page
+      if (newUsers.length === 0 && page > 1 && newTotalPages > 0) {
+        setPage(page - 1);
+      } else {
+        // Otherwise refresh current page data
+        setUsers(newUsers);
+        setTotalPages(newTotalPages);
+        setTotalUsers(res.totalUsers ?? 0);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete user");
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -152,6 +185,14 @@ export default function AdminUsersPage() {
                       >
                         Edit
                       </Link>
+                      <span className="mx-2 text-gray-300">|</span>
+                      <button
+                        onClick={() => handleDelete(user._id, user.name)}
+                        disabled={deletingUserId === user._id}
+                        className="text-red-600 font-semibold hover:text-red-800 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {deletingUserId === user._id ? "Deleting..." : "Delete"}
+                      </button>
                     </td>
                   </tr>
                 );

@@ -6,10 +6,12 @@ import bcryptjs from "bcryptjs";
 import { HttpError } from "../errors/http-error";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../configs";
+import { EmailService } from "./email.service";
 
 const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 
 let userRepository = new UserRepository();
+const emailService = new EmailService();
 
 export class UserService {
   async registerUser(userData: createUserDto) {
@@ -98,7 +100,7 @@ export class UserService {
     return { token, user: userResponse };
   }
 
-  /** Generate secure reset token and save with expiry; no-op if user not found. */
+  /** Generate secure reset token, save with expiry, and send reset link email; no-op if user not found. */
   async requestPasswordReset(email: string): Promise<void> {
     const user = await userRepository.getUserByEmail(email);
     if (!user) return;
@@ -110,6 +112,13 @@ export class UserService {
       resetPasswordToken: token,
       resetPasswordExpires: expires,
     });
+
+    try {
+      await emailService.sendResetPasswordEmail(user.email, token);
+    } catch (err) {
+      console.error("Failed to send reset password email:", err);
+      // Do not throw; API still returns generic success to avoid leaking user existence
+    }
   }
 }
 

@@ -68,6 +68,15 @@ npm install
 PORT=5050
 MONGODB_URI=mongodb://localhost:27017/cineghar
 JWT_SECRET=your-secret-key-here
+
+# Optional: Nodemailer / SMTP (for forgot-password emails)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=noreply@example.com
+FRONTEND_URL=http://localhost:3000
 ```
 
 3. Start MongoDB (if running locally):

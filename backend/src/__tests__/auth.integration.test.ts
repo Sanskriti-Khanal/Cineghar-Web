@@ -186,4 +186,112 @@ describe("Auth integration tests", () => {
       expect(getRes.body.message).toMatch(/not found/i);
     });
   });
+
+  describe("Pagination", () => {
+    let adminToken: string;
+    const TOTAL_USERS = 15;
+    const LIMIT = 5;
+
+    beforeEach(async () => {
+      // Create admin user
+      const registerRes = await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Admin",
+          email: "admin@pagination.com",
+          password: "admin123",
+          confirmPassword: "admin123",
+        });
+
+      // Update role to admin in DB
+      await UserModel.findByIdAndUpdate(registerRes.body.data._id, {
+        role: "admin",
+      });
+
+      const loginRes = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: "admin@pagination.com",
+          password: "admin123",
+        });
+
+      adminToken = loginRes.body.token;
+
+      // Create multiple users for pagination testing
+      const users = [];
+      for (let i = 1; i <= TOTAL_USERS; i++) {
+        users.push({
+          name: `User ${i}`,
+          email: `user${i}@pagination.com`,
+          password: "password123",
+          role: "user",
+        });
+      }
+      await UserModel.insertMany(users);
+    });
+
+    it("page 1 returns limit users", async () => {
+      const res = await request(app)
+        .get("/api/admin/users")
+        .query({ page: 1, limit: LIMIT })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toBeDefined();
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(LIMIT);
+      expect(res.body.page).toBe(1);
+      expect(res.body.limit).toBe(LIMIT);
+    });
+
+    it("total pages calculation correct", async () => {
+      const res = await request(app)
+        .get("/api/admin/users")
+        .query({ page: 1, limit: LIMIT })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(res.body.totalUsers).toBe(TOTAL_USERS + 1); // +1 for admin user
+      expect(res.body.totalPages).toBe(Math.ceil((TOTAL_USERS + 1) / LIMIT));
+      expect(res.body.totalPages).toBe(4); // 16 users / 5 per page = 4 pages
+    });
+
+    it("invalid page handled - page 0", async () => {
+      const res = await request(app)
+        .get("/api/admin/users")
+        .query({ page: 0, limit: LIMIT })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBeDefined();
+    });
+
+    it("invalid page handled - negative page", async () => {
+      const res = await request(app)
+        .get("/api/admin/users")
+        .query({ page: -1, limit: LIMIT })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBeDefined();
+    });
+
+    it("invalid page handled - page beyond total pages", async () => {
+      const res = await request(app)
+        .get("/api/admin/users")
+        .query({ page: 999, limit: LIMIT })
+        .set("Authorization", `Bearer ${adminToken}`)
+        .expect(200);
+
+      // Should return empty array, not error
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toBeDefined();
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(0);
+      expect(res.body.page).toBe(999);
+    });
+  });
 });

@@ -91,6 +91,14 @@ npm run dev
 
 The server will start on `http://localhost:5050`
 
+### Running tests
+
+Integration tests use Jest and Supertest. **MongoDB must be running** (e.g. `mongod`). Tests use the `cineghar_test` database by default (set `MONGODB_URI_TEST` to override).
+
+```bash
+npm test
+```
+
 ## API Endpoints
 
 ### Authentication Routes (`/api/auth`)

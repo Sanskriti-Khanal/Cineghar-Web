@@ -89,3 +89,19 @@ export const forgotPasswordApi = async (email: string) => {
   return data;
 };
 
+export const resetPasswordApi = async (params: {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}) => {
+  const { data } = await axios.post<ApiResponse<unknown>>(
+    API.AUTH.RESET_PASSWORD,
+    {
+      token: params.token,
+      password: params.password,
+      confirmPassword: params.confirmPassword,
+    }
+  );
+  return data;
+};
+

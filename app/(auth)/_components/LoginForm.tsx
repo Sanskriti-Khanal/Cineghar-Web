@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { loginSchema, LoginFormInputs } from "../schema";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,8 +16,16 @@ import GoogleButton from "@/app/_components/GoogleButton";
 import Alert from "@/app/_components/Alert";
 
 const LoginForm = () => {
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const { login } = useAuth();
+
+  useEffect(() => {
+    if (searchParams.get("reset") === "success") {
+      setSuccess("Password has been reset successfully. Please sign in with your new password.");
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -59,6 +68,11 @@ const LoginForm = () => {
         {error && (
           <Alert variant="error" className="mb-4" onClose={() => setError(null)}>
             {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert variant="success" className="mb-4" onClose={() => setSuccess(null)}>
+            {success}
           </Alert>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

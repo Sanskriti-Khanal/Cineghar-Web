@@ -104,4 +104,86 @@ describe("Auth integration tests", () => {
       expect(res.body.message).toMatch(/not found/i);
     });
   });
+
+  describe("User CRUD", () => {
+    it("get user by ID works", async () => {
+      const registerRes = await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "CRUD User",
+          email: "crud@example.com",
+          password: "pass123",
+          confirmPassword: "pass123",
+        })
+        .expect(201);
+
+      const userId = registerRes.body.data._id;
+      const res = await request(app)
+        .get(`/api/auth/${userId}`)
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toBeDefined();
+      expect(res.body.data._id).toBe(userId);
+      expect(res.body.data.name).toBe("CRUD User");
+      expect(res.body.data.email).toBe("crud@example.com");
+      expect(res.body.data.password).toBeUndefined();
+    });
+
+    it("update user works (self)", async () => {
+      await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Original Name",
+          email: "update@example.com",
+          password: "pass123",
+          confirmPassword: "pass123",
+        })
+        .expect(201);
+
+      const loginRes = await request(app)
+        .post("/api/auth/login")
+        .send({ email: "update@example.com", password: "pass123" })
+        .expect(200);
+
+      const token = loginRes.body.token;
+      const userId = loginRes.body.data._id;
+
+      const res = await request(app)
+        .put(`/api/auth/${userId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ name: "Updated Name" })
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.name).toBe("Updated Name");
+      expect(res.body.data.email).toBe("update@example.com");
+      expect(res.body.data.password).toBeUndefined();
+    });
+
+    it("delete user works", async () => {
+      const registerRes = await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "To Delete",
+          email: "delete@example.com",
+          password: "pass123",
+          confirmPassword: "pass123",
+        })
+        .expect(201);
+
+      const userId = registerRes.body.data._id;
+
+      await request(app)
+        .delete(`/api/auth/${userId}`)
+        .expect(200);
+
+      const getRes = await request(app)
+        .get(`/api/auth/${userId}`)
+        .expect(404);
+
+      expect(getRes.body.success).toBe(false);
+      expect(getRes.body.message).toMatch(/not found/i);
+    });
+  });
 });

@@ -11,7 +11,13 @@ export default function AuthLayout({
 }) {
   const pathname = usePathname();
   const isRegister = pathname.includes("/register");
+  const isDashboard = pathname.includes("/dashboard");
   const bannerImage = isRegister ? "/images/register_banner.png" : "/images/login_banner.png";
+
+  // Dashboard doesn't need the banner layout
+  if (isDashboard) {
+    return <>{children}</>;
+  }
 
   return (
     <section className="h-screen bg-[#2D0A0E]">

@@ -3,36 +3,37 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerSchema, RegisterFormInputs } from "../schema";
+import { useAuth } from "@/contexts/AuthContext";
 import FormInput from "@/app/_components/FormInput";
 import DateInput from "@/app/_components/DateInput";
 import PasswordInput from "@/app/_components/PasswordInput";
 import Button from "@/app/_components/Button";
 import Separator from "@/app/_components/Separator";
 import GoogleButton from "@/app/_components/GoogleButton";
+import Alert from "@/app/_components/Alert";
 
 const RegisterForm = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const { register: registerUser } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
   });
 
   const onSubmit = async (data: RegisterFormInputs) => {
-    setIsSubmitting(true);
-    // TODO: Implement registration logic
-    console.log("Registration data:", data);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // router.push("/dashboard");
-    }, 1000);
+    setError(null);
+    try {
+      await registerUser(data.name, data.email, data.password);
+      // Redirect is handled by AuthContext
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed. Please try again.");
+    }
   };
 
   const handleGoogleSignIn = () => {
@@ -52,6 +53,11 @@ const RegisterForm = () => {
       </div>
 
       <div className="rounded-xl bg-white p-8 shadow-lg">
+        {error && (
+          <Alert variant="error" className="mb-4" onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <FormInput
             label="Your Name"

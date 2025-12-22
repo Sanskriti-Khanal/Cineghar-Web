@@ -10,7 +10,6 @@ const Navbar = () => {
   const pathname = usePathname();
   const { isAuthenticated, user, logout } = useAuth();
   const [activeSection, setActiveSection] = useState("home");
-  const [isScrolled, setIsScrolled] = useState(false);
 
   // Only track sections on homepage
   const isHomePage = pathname === "/";
@@ -20,7 +19,6 @@ const Navbar = () => {
 
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 50);
 
       // Define sections with their IDs
       const sections = [

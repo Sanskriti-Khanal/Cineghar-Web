@@ -5,10 +5,11 @@
   --foreground: #171717;
   --cineghar-primary: #8B0000;
   --cineghar-primary-light: #A00000;
-  --cineghar-text-main: #222427;
+  --cineghar-text-main: #1a1a1a;
   --cineghar-text-muted: #6f7478;
-  --cineghar-surface-soft: #f4f6ee;
-  --cineghar-border: #e2e4d9;
+  --cineghar-surface-soft: #fafafa;
+  --cineghar-border: #e5e5e5;
+  --cineghar-bg-light: #fafafa;
 }
 
 @theme inline {

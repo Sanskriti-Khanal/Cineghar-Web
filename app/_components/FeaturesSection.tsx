@@ -31,7 +31,7 @@ export default function FeaturesSection() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <article
                 key={index}

@@ -8,7 +8,7 @@ export default function HeroSection() {
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Hero Content */}
-          <div className="space-y-6">
+          <div className="space-y-6 md:order-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#e2ebd5] bg-[#f4f8eb] text-[#6a8c3f] text-xs font-medium">
               <span>🎬</span>
               <span>Movies • Entertainment • Streaming</span>
@@ -37,10 +37,10 @@ export default function HeroSection() {
           </div>
 
           {/* Hero Visual - Movie Cards Mockup */}
-          <div className="relative flex justify-center items-center">
-            <div className="relative w-full max-w-sm">
+          <div className="relative flex justify-center items-center md:order-2">
+            <div className="relative w-full max-w-sm scale-90 md:scale-100">
               {/* Primary Movie Card */}
-              <div className="absolute inset-0 transform -rotate-3 -translate-x-2 bg-white rounded-[34px] p-4 shadow-2xl border border-[#d3d8c5]">
+              <div className="absolute inset-0 transform -rotate-3 -translate-x-2 bg-white rounded-[34px] p-4 shadow-2xl border border-[#d3d8c5] hidden md:block">
                 <div className="flex gap-1 mb-3">
                   <div className="w-1 h-1 rounded-full bg-[#d3d7c5]"></div>
                   <div className="w-1 h-1 rounded-full bg-[#d3d7c5]"></div>
@@ -77,7 +77,7 @@ export default function HeroSection() {
               </div>
               
               {/* Secondary Movie Card */}
-              <div className="absolute top-12 right-0 transform rotate-6 translate-x-24 w-48 h-72 rounded-[28px] p-3.5 bg-[#f6f7f1] shadow-xl border border-[#d3d8c5]">
+              <div className="absolute top-12 right-0 transform rotate-6 translate-x-24 w-48 h-72 rounded-[28px] p-3.5 bg-[#f6f7f1] shadow-xl border border-[#d3d8c5] hidden lg:block">
                 <div className="text-xs font-medium mb-2.5">Featured Movie</div>
                 <div className="h-20 rounded-lg bg-[#e1e6d4] mb-2"></div>
                 <div className="h-4 rounded bg-[#e1e6d4] mb-1.5"></div>

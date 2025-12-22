@@ -5,27 +5,19 @@ import ScrollReveal from "./ScrollReveal";
 
 export default function HeroSection() {
   return (
-    <section id="home" className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-[#1a1a1a] via-[#2a2a2a] to-[#1a1a1a] overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(139, 0, 0, 0.3) 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }}></div>
-      </div>
-
+    <section id="home" className="relative min-h-[90vh] flex items-center bg-white overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid lg:grid-cols-2 gap-12 items-center py-20">
           {/* Left Content */}
           <div className="text-center lg:text-left space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
                 Your Ultimate
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#8B0000] to-[#A00000]">
                   Movie Destination
                 </span>
               </h1>
-              <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
                 Discover, stream, and enjoy the best movies from around the world. 
                 Curated collections, personalized recommendations, and seamless streaming.
               </p>
@@ -40,25 +32,25 @@ export default function HeroSection() {
               </Link>
               <Link
                 href="#features"
-                className="px-8 py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold text-base hover:bg-white/20 transition-all duration-300"
+                className="px-8 py-4 rounded-full bg-gray-100 border border-gray-200 text-gray-700 font-semibold text-base hover:bg-gray-200 transition-all duration-300"
               >
                 Learn More
               </Link>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200">
               <div>
-                <p className="text-3xl font-bold text-white">10K+</p>
-                <p className="text-sm text-gray-400 mt-1">Movies</p>
+                <p className="text-3xl font-bold text-gray-900">10K+</p>
+                <p className="text-sm text-gray-600 mt-1">Movies</p>
               </div>
               <div>
-                <p className="text-3xl font-bold text-white">50K+</p>
-                <p className="text-sm text-gray-400 mt-1">Users</p>
+                <p className="text-3xl font-bold text-gray-900">50K+</p>
+                <p className="text-sm text-gray-600 mt-1">Users</p>
               </div>
               <div>
-                <p className="text-3xl font-bold text-white">4.8★</p>
-                <p className="text-sm text-gray-400 mt-1">Rating</p>
+                <p className="text-3xl font-bold text-gray-900">4.8★</p>
+                <p className="text-sm text-gray-600 mt-1">Rating</p>
               </div>
             </div>
           </div>

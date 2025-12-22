@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const pathname = usePathname();
-  const isLoggedIn = false; // TODO: Replace with actual auth check
+  const { isAuthenticated, user, logout } = useAuth();
 
   return (
     <nav className="w-full bg-[#2C2C2C] flex items-center justify-between px-6 py-4 h-16">
@@ -86,15 +87,24 @@ const Navbar = () => {
         </div>
 
         {/* User Avatar or Login/Signup Buttons */}
-        {isLoggedIn ? (
-          <div className="w-10 h-10 rounded-full bg-gray-400 overflow-hidden cursor-pointer">
-            <Image
-              src="/images/logo.png"
-              alt="User avatar"
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-            />
+        {isAuthenticated ? (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gray-400 overflow-hidden cursor-pointer flex items-center justify-center">
+                <span className="text-white font-semibold text-sm">
+                  {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+                </span>
+              </div>
+              <span className="text-white text-sm hidden md:block">
+                {user?.name || user?.email}
+              </span>
+            </div>
+            <button
+              onClick={logout}
+              className="px-4 py-2 bg-[#8B0000] text-white font-sans text-sm rounded-lg hover:bg-[#6B0000] transition-colors"
+            >
+              Logout
+            </button>
           </div>
         ) : (
           <div className="flex items-center gap-3">

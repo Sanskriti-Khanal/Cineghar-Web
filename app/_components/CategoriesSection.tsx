@@ -1,15 +1,23 @@
 "use client";
 
 import ScrollReveal from "./ScrollReveal";
+import { 
+  Zap, 
+  Heart, 
+  Ghost, 
+  Smile, 
+  Rocket, 
+  Film 
+} from "lucide-react";
 
 export default function CategoriesSection() {
   const categories = [
-    { label: "Action & Adventure" },
-    { label: "Romance" },
-    { label: "Horror & Thriller" },
-    { label: "Comedy" },
-    { label: "Sci-Fi & Fantasy" },
-    { label: "Drama" },
+    { label: "Action & Adventure", icon: Zap },
+    { label: "Romance", icon: Heart },
+    { label: "Horror & Thriller", icon: Ghost },
+    { label: "Comedy", icon: Smile },
+    { label: "Sci-Fi & Fantasy", icon: Rocket },
+    { label: "Drama", icon: Film },
   ];
 
   return (
@@ -21,14 +29,21 @@ export default function CategoriesSection() {
           </h2>
           
           <div className="flex flex-wrap justify-center gap-3">
-            {categories.map((category, index) => (
-              <button
-                key={index}
-                className="px-5 py-2.5 rounded-full bg-[#fafafa] border border-[#e5e5e5] text-sm text-[#6f7478] hover:bg-[#8B0000] hover:text-white hover:border-[#8B0000] transition-all duration-200"
-              >
-                {category.label}
-              </button>
-            ))}
+            {categories.map((category, index) => {
+              const Icon = category.icon;
+              return (
+                <button
+                  key={index}
+                  className="group flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#fafafa] border border-[#e5e5e5] text-sm text-[#6f7478] hover:bg-[#8B0000] hover:text-white hover:border-[#8B0000] transition-all duration-200"
+                >
+                  <Icon 
+                    size={18} 
+                    className="text-[#8B0000] group-hover:text-white transition-colors duration-200" 
+                  />
+                  <span>{category.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>

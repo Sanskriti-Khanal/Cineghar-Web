@@ -6,44 +6,44 @@ export default function FeaturesSection() {
   const features = [
     {
       title: "Curated movie collection",
-      description: "Browse thousands of handpicked movies across all genres, from classic cinema to latest blockbusters, all in one organized library.",
+      description: "Browse thousands of handpicked movies across all genres, from classic cinema to latest blockbusters.",
     },
     {
       title: "Personalized recommendations",
-      description: "Get movie suggestions tailored to your taste based on your viewing history and preferences. Discover your next favorite film.",
+      description: "Get movie suggestions tailored to your taste based on your viewing history and preferences.",
     },
     {
       title: "Seamless streaming experience",
-      description: "Watch movies in high quality with smooth playback. Access your watchlist and continue watching from where you left off.",
+      description: "Watch movies in high quality with smooth playback. Access your watchlist anytime.",
     },
   ];
 
   return (
     <ScrollReveal>
-      <section className="py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#222427] mb-2">
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-md mx-auto px-4 md:max-w-2xl lg:max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] mb-2">
               Why you'll love CineGhar
             </h2>
-            <p className="text-base text-[#6f7478] max-w-2xl mx-auto">
+            <p className="text-sm md:text-base text-[#6f7478] max-w-xl mx-auto">
               Designed to provide the best movie-watching experience with a clean, intuitive interface.
             </p>
           </div>
           
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
             {features.map((feature, index) => (
-              <article
+              <div
                 key={index}
-                className="p-5 rounded-2xl bg-white border border-[#e2e4d9] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-[#8B0000]/40"
+                className="p-5 rounded-2xl bg-[#fafafa] border border-[#e5e5e5] hover:shadow-md transition-all duration-200"
               >
-                <h3 className="text-lg font-semibold text-[#222427] mb-2">
+                <h3 className="text-base font-semibold text-[#1a1a1a] mb-2">
                   {feature.title}
                 </h3>
                 <p className="text-sm text-[#6f7478] leading-relaxed">
                   {feature.description}
                 </p>
-              </article>
+              </div>
             ))}
           </div>
         </div>
@@ -51,4 +51,3 @@ export default function FeaturesSection() {
     </ScrollReveal>
   );
 }
-

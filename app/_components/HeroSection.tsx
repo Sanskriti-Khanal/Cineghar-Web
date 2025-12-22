@@ -6,92 +6,96 @@ import ScrollReveal from "./ScrollReveal";
 export default function HeroSection() {
   return (
     <ScrollReveal>
-      <section className="py-16 md:py-24 bg-gradient-to-br from-[#f5f8ec] via-[#fdfdfb] to-white">
-      <div className="max-w-7xl mx-auto px-5 md:px-8">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Hero Content */}
-          <div className="space-y-6 md:order-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#e2ebd5] bg-[#f4f8eb] text-[#6a8c3f] text-xs font-medium">
-              <span>🎬</span>
-              <span>Movies • Entertainment • Streaming</span>
+      <section className="py-8 md:py-16 bg-[#fafafa]">
+        <div className="max-w-md mx-auto px-4 md:max-w-2xl lg:max-w-4xl">
+          {/* Mobile-First Hero Card */}
+          <div className="bg-white rounded-[28px] p-5 shadow-lg border border-[#e5e5e5]">
+            {/* Header with Search */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#d0d0d0]"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#d0d0d0]"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#d0d0d0]"></div>
+              </div>
+              <div className="flex-1 h-9 rounded-full bg-[#f5f5f5]"></div>
             </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-[#222427]">
-              Your ultimate movie destination, right at your fingertips.
-            </h1>
-            
-            <p className="text-base text-[#6f7478] max-w-lg">
-              CineGhar brings you the latest movies, exclusive content, and personalized recommendations 
-              in one simple platform. Watch, discover, and enjoy cinema like never before.
-            </p>
-            
-            <div className="flex flex-col gap-3 pt-4">
-              <Link
-                href="/movies"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white font-medium text-sm shadow-lg hover:shadow-xl transition-all hover:scale-105"
-              >
-                Explore Movies
-              </Link>
-              <p className="text-xs text-[#6f7478]">
-                Join thousands of movie lovers discovering new favorites every day.
+
+            {/* Welcome Message */}
+            <div className="mb-4">
+              <p className="text-base font-medium text-[#1a1a1a] mb-1">
+                Hi, Movie Lover!
               </p>
+              <p className="text-sm text-[#6f7478]">
+                Welcome back to CineGhar
+              </p>
+            </div>
+
+            {/* Banner Placeholder */}
+            <div className="h-24 rounded-xl bg-[#f0f0f0] mb-4"></div>
+
+            {/* Category Pills */}
+            <div className="flex flex-wrap gap-2 mb-5">
+              <button className="px-4 py-2 rounded-full text-xs font-medium bg-[#8B0000] text-white">
+                Trending
+              </button>
+              <button className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#6f7478] border border-[#e5e5e5] hover:bg-[#fafafa]">
+                Action
+              </button>
+              <button className="px-4 py-2 rounded-full text-xs font-medium bg-white text-[#6f7478] border border-[#e5e5e5] hover:bg-[#fafafa]">
+                Drama
+              </button>
+            </div>
+
+            {/* Movie Listings */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] border border-[#e5e5e5]">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6b9d] to-[#c44569] flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#1a1a1a] truncate">
+                    The Dark Knight
+                  </p>
+                  <p className="text-xs text-[#6f7478] truncate">
+                    Action • Thriller
+                  </p>
+                </div>
+                <span className="text-xs px-2 py-1 rounded-full bg-[#8B0000]/10 text-[#8B0000] font-medium flex-shrink-0">
+                  4.9★
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[#fafafa] border border-[#e5e5e5]">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f4a261] to-[#e76f51] flex-shrink-0"></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#1a1a1a] truncate">
+                    Inception
+                  </p>
+                  <p className="text-xs text-[#6f7478] truncate">
+                    Sci-Fi • Mystery
+                  </p>
+                </div>
+                <span className="text-xs px-2 py-1 rounded-full bg-[#8B0000]/10 text-[#8B0000] font-medium flex-shrink-0">
+                  4.8★
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Hero Visual - Movie Cards Mockup */}
-          <div className="relative flex justify-center items-center md:order-2">
-            <div className="relative w-full max-w-sm scale-90 md:scale-100">
-              {/* Primary Movie Card */}
-              <div className="absolute inset-0 transform -rotate-3 -translate-x-2 bg-white rounded-[34px] p-4 shadow-2xl border border-[#d3d8c5] hidden md:block">
-                <div className="flex gap-1 mb-3">
-                  <div className="w-1 h-1 rounded-full bg-[#d3d7c5]"></div>
-                  <div className="w-1 h-1 rounded-full bg-[#d3d7c5]"></div>
-                  <div className="w-1 h-1 rounded-full bg-[#d3d7c5]"></div>
-                </div>
-                <div className="mb-3">
-                  <p className="text-sm font-medium">Hi, Movie Lover! 👋</p>
-                  <p className="text-xs text-[#6f7478]">Welcome back to CineGhar</p>
-                </div>
-                <div className="h-8 rounded-full bg-[#f4f6ee] mb-3"></div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="px-2.5 py-1 rounded-full text-xs bg-[#f4f6ee] text-[#6f7478]">Trending</span>
-                  <span className="px-2.5 py-1 rounded-full text-xs bg-white border border-[#ecefdf] text-[#6f7478]">Action</span>
-                  <span className="px-2.5 py-1 rounded-full text-xs bg-white border border-[#ecefdf] text-[#6f7478]">Drama</span>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-[#fbfbf6] border border-[#ecefdf]">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#f4e2d8] to-[#ba5370]"></div>
-                    <div className="flex-1">
-                      <p className="text-xs font-medium">The Dark Knight</p>
-                      <p className="text-[10px] text-[#6f7478]">Action • Thriller</p>
-                    </div>
-                    <span className="text-[10px] px-2 py-1 rounded-full bg-[#e2ebd5] text-[#6a8c3f] font-medium">4.9★</span>
-                  </div>
-                  <div className="flex items-center gap-2.5 p-2 rounded-xl bg-[#fbfbf6] border border-[#ecefdf]">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#d1b27c] to-[#f7efe6]"></div>
-                    <div className="flex-1">
-                      <p className="text-xs font-medium">Inception</p>
-                      <p className="text-[10px] text-[#6f7478]">Sci-Fi • Mystery</p>
-                    </div>
-                    <span className="text-[10px] px-2 py-1 rounded-full bg-[#e2ebd5] text-[#6a8c3f] font-medium">4.8★</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Secondary Movie Card */}
-              <div className="absolute top-12 right-0 transform rotate-6 translate-x-24 w-48 h-72 rounded-[28px] p-3.5 bg-[#f6f7f1] shadow-xl border border-[#d3d8c5] hidden lg:block">
-                <div className="text-xs font-medium mb-2.5">Featured Movie</div>
-                <div className="h-20 rounded-lg bg-[#e1e6d4] mb-2"></div>
-                <div className="h-4 rounded bg-[#e1e6d4] mb-1.5"></div>
-                <div className="h-4 rounded bg-[#e1e6d4] w-3/4 mb-3"></div>
-                <div className="h-7 rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000]"></div>
-              </div>
+          {/* Featured Movie Card - Desktop */}
+          <div className="hidden lg:block mt-6">
+            <div className="bg-white rounded-[24px] p-4 shadow-lg border border-[#e5e5e5] max-w-xs ml-auto">
+              <p className="text-sm font-medium text-[#1a1a1a] mb-3">
+                Featured Movie
+              </p>
+              <div className="h-32 rounded-lg bg-[#f0f0f0] mb-3"></div>
+              <div className="h-3 rounded bg-[#f0f0f0] mb-2"></div>
+              <div className="h-3 rounded bg-[#f0f0f0] w-3/4 mb-4"></div>
+              <button className="w-full h-9 rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white text-sm font-medium hover:opacity-90 transition-opacity">
+                Watch Now
+              </button>
             </div>
           </div>
         </div>
-      </div>
       </section>
     </ScrollReveal>
   );
 }
-

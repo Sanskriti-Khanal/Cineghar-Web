@@ -3,6 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --cineghar-primary: #8B0000;
+  --cineghar-primary-light: #A00000;
+  --cineghar-text-main: #222427;
+  --cineghar-text-muted: #6f7478;
+  --cineghar-surface-soft: #f4f6ee;
+  --cineghar-border: #e2e4d9;
 }
 
 @theme inline {
@@ -19,11 +25,34 @@
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   scroll-behavior: smooth;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
 }
 
 /* Scroll reveal animations */

@@ -1,5 +1,7 @@
 "use client";
 
+import ScrollReveal from "./ScrollReveal";
+
 export default function MoviesPreviewSection() {
   const movies = [
     {
@@ -40,7 +42,8 @@ export default function MoviesPreviewSection() {
   ];
 
   return (
-    <section className="py-16 md:py-20 bg-[#f4f6ee]">
+    <ScrollReveal>
+      <section className="py-16 md:py-20 bg-[#f4f6ee]">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-[#222427] mb-2">
@@ -104,7 +107,8 @@ export default function MoviesPreviewSection() {
           ))}
         </div>
       </div>
-    </section>
+      </section>
+    </ScrollReveal>
   );
 }
 

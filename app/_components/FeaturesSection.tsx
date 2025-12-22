@@ -1,5 +1,7 @@
 "use client";
 
+import ScrollReveal from "./ScrollReveal";
+
 export default function FeaturesSection() {
   const features = [
     {
@@ -17,34 +19,36 @@ export default function FeaturesSection() {
   ];
 
   return (
-    <section className="py-16 md:py-20">
-      <div className="max-w-7xl mx-auto px-5 md:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#222427] mb-2">
-            Why you'll love CineGhar
-          </h2>
-          <p className="text-base text-[#6f7478] max-w-2xl mx-auto">
-            Designed to provide the best movie-watching experience with a clean, intuitive interface.
-          </p>
+    <ScrollReveal>
+      <section className="py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-5 md:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#222427] mb-2">
+              Why you'll love CineGhar
+            </h2>
+            <p className="text-base text-[#6f7478] max-w-2xl mx-auto">
+              Designed to provide the best movie-watching experience with a clean, intuitive interface.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {features.map((feature, index) => (
+              <article
+                key={index}
+                className="p-5 rounded-2xl bg-white border border-[#e2e4d9] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-[#8B0000]/40"
+              >
+                <h3 className="text-lg font-semibold text-[#222427] mb-2">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-[#6f7478] leading-relaxed">
+                  {feature.description}
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
-        
-        <div className="grid md:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <article
-              key={index}
-              className="p-5 rounded-2xl bg-white border border-[#e2e4d9] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-[#8B0000]/40"
-            >
-              <h3 className="text-lg font-semibold text-[#222427] mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-sm text-[#6f7478] leading-relaxed">
-                {feature.description}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
+    </ScrollReveal>
   );
 }
 

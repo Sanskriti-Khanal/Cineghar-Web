@@ -1,5 +1,7 @@
 "use client";
 
+import ScrollReveal from "./ScrollReveal";
+
 export default function CategoriesSection() {
   const categories = [
     { icon: "🎬", label: "Action & Adventure" },
@@ -11,7 +13,8 @@ export default function CategoriesSection() {
   ];
 
   return (
-    <section className="py-16 md:py-20">
+    <ScrollReveal>
+      <section className="py-16 md:py-20">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <h2 className="text-3xl md:text-4xl font-bold text-[#222427] mb-10 text-center">
           All your favorite genres, neatly organized
@@ -37,7 +40,8 @@ export default function CategoriesSection() {
           ))}
         </div>
       </div>
-    </section>
+      </section>
+    </ScrollReveal>
   );
 }
 

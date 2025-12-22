@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import ScrollReveal from "./ScrollReveal";
 
 export default function HeroSection() {
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-br from-[#f5f8ec] via-[#fdfdfb] to-white">
+    <ScrollReveal>
+      <section className="py-16 md:py-24 bg-gradient-to-br from-[#f5f8ec] via-[#fdfdfb] to-white">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Hero Content */}
@@ -88,7 +90,8 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </ScrollReveal>
   );
 }
 

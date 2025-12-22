@@ -1,8 +1,11 @@
 "use client";
 
+import ScrollReveal from "./ScrollReveal";
+
 export default function CTASection() {
   return (
-    <section className="py-16 md:py-20 bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white">
+    <ScrollReveal>
+      <section className="py-16 md:py-20 bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="flex flex-col md:flex-row items-center md:justify-between gap-8">
           <div className="flex-1 text-center md:text-left">
@@ -37,7 +40,8 @@ export default function CTASection() {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </ScrollReveal>
   );
 }
 

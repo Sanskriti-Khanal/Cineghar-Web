@@ -3,6 +3,7 @@ import HeroSection from "./_components/HeroSection";
 import FeaturesSection from "./_components/FeaturesSection";
 import MoviesPreviewSection from "./_components/MoviesPreviewSection";
 import CategoriesSection from "./_components/CategoriesSection";
+import CTASection from "./_components/CTASection";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
         <FeaturesSection />
         <MoviesPreviewSection />
         <CategoriesSection />
+        <CTASection />
       </main>
     </div>
   );

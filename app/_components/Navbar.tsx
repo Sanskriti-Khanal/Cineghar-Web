@@ -87,14 +87,14 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-gradient-to-br from-[#1a1a1a] via-[#2a2a2a] to-[#1a1a1a] ${
         showNavbar
           ? "translate-y-0"
           : "-translate-y-full"
       } ${
         isScrolled || !isHomePage
-          ? "bg-[#1a1a1a] shadow-lg"
-          : "bg-transparent"
+          ? "shadow-lg"
+          : ""
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

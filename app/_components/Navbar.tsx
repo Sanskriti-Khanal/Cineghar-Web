@@ -102,7 +102,7 @@ const Navbar = () => {
           {/* Left Section - Logo */}
           <div className="flex items-center flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <div className="bg-[#8B0000] px-4 py-3 flex items-center gap-2 h-full">
+              <div className="bg-[#8B0000] px-4 py-3 flex items-center gap-2 h-full rounded-sm">
                 <Image
                   src="/images/logo.png"
                   alt="CineGhar Logo"

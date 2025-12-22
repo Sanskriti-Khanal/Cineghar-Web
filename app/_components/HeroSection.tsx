@@ -38,7 +38,7 @@ export default function HeroSection() {
                 Explore Movies
               </Link>
               <Link
-                href="#features"
+                href="/register"
                 className="px-8 py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold text-base hover:bg-white/20 transition-all duration-300"
               >
                 Learn More

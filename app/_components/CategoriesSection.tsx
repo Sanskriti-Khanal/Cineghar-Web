@@ -28,7 +28,7 @@ export default function CategoriesSection() {
             All your favorite genres, neatly organized
           </h2>
           
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-nowrap justify-center gap-3 overflow-x-auto pb-2">
             {categories.map((category, index) => {
               const Icon = category.icon;
               return (

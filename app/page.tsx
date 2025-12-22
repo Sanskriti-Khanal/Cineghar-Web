@@ -4,6 +4,7 @@ import FeaturesSection from "./_components/FeaturesSection";
 import MoviesPreviewSection from "./_components/MoviesPreviewSection";
 import CategoriesSection from "./_components/CategoriesSection";
 import CTASection from "./_components/CTASection";
+import Footer from "./_components/Footer";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
         <CategoriesSection />
         <CTASection />
       </main>
+      <Footer />
     </div>
   );
 }

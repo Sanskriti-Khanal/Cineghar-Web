@@ -39,7 +39,7 @@ export default function MoviesPreviewSection() {
 
   return (
     <ScrollReveal>
-      <section className="py-12 md:py-16 bg-[#fafafa]">
+      <section id="movies" className="py-12 md:py-16 bg-[#fafafa]">
         <div className="max-w-md mx-auto px-4 md:max-w-2xl lg:max-w-4xl">
           <div className="mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] mb-2">

@@ -20,7 +20,7 @@ export default function FeaturesSection() {
 
   return (
     <ScrollReveal>
-      <section className="py-12 md:py-16 bg-white">
+      <section id="features" className="py-12 md:py-16 bg-white">
         <div className="max-w-md mx-auto px-4 md:max-w-2xl lg:max-w-4xl">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold text-[#1a1a1a] mb-2">

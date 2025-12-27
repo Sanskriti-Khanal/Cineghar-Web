@@ -1,9 +1,8 @@
 import { forwardRef } from "react";
 import { FieldError } from "react-hook-form";
 
-interface CheckboxProps {
+interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  name?: string;
   error?: FieldError;
 }
 
@@ -13,7 +12,6 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       <div className="flex items-center">
         <input
           id={name}
-          name={name}
           type="checkbox"
           ref={ref}
           className="w-4 h-4 text-[#8B0000] border-gray-300 rounded focus:ring-[#8B0000] focus:ring-2"

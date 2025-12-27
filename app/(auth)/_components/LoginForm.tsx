@@ -3,24 +3,25 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginSchema, LoginFormInputs } from "../schema";
+import { useAuth } from "@/contexts/AuthContext";
 import FormInput from "@/app/_components/FormInput";
 import PasswordInput from "@/app/_components/PasswordInput";
 import Checkbox from "@/app/_components/Checkbox";
 import Button from "@/app/_components/Button";
 import Separator from "@/app/_components/Separator";
 import GoogleButton from "@/app/_components/GoogleButton";
+import Alert from "@/app/_components/Alert";
 
 const LoginForm = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -29,13 +30,13 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (data: LoginFormInputs) => {
-    setIsSubmitting(true);
-    // TODO: Implement login logic
-    console.log("Login data:", data);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // router.push("/dashboard");
-    }, 1000);
+    setError(null);
+    try {
+      await login(data.email, data.password);
+      // Redirect is handled by AuthContext
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed. Please check your credentials.");
+    }
   };
 
   const handleGoogleSignIn = () => {
@@ -55,6 +56,11 @@ const LoginForm = () => {
       </div>
 
       <div className="rounded-xl bg-white p-8 shadow-lg">
+        {error && (
+          <Alert variant="error" className="mb-4" onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <FormInput
             label="Email"
@@ -73,7 +79,6 @@ const LoginForm = () => {
 
           <Checkbox
             label="Keep me logged in"
-            name="rememberMe"
             {...register("rememberMe")}
           />
 

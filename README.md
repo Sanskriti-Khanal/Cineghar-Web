@@ -36,5 +36,22 @@ npm run dev
 ## Scripts
 
 - `npm run dev` - Start development server
+- `npm run build` - Build the application for production
+- `npm run start` - Start the production server
+- `npm run lint` - Run ESLint to check code quality
 
+## Project Structure
+
+- `app/` - Next.js app directory with pages and components
+- `contexts/` - React context providers
+- `utils/` - Utility functions and constants
+- `public/` - Static assets
+
+## Technologies Used
+
+- Next.js 16 - React framework
+- TypeScript - Type safety
+- Tailwind CSS - Utility-first CSS framework
+- Zod - Schema validation
+- React Hook Form - Form state management
 

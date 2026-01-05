@@ -1,14 +1,23 @@
 import Navbar from "./_components/Navbar";
+import HeroSection from "./_components/HeroSection";
+import FeaturesSection from "./_components/FeaturesSection";
+import MoviesPreviewSection from "./_components/MoviesPreviewSection";
+import CategoriesSection from "./_components/CategoriesSection";
+import CTASection from "./_components/CTASection";
+import Footer from "./_components/Footer";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <main className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-        <h1 className="text-4xl font-semibold text-gray-800">
-          This is home page
-        </h1>
+      <main className="pt-16">
+        <HeroSection />
+        <FeaturesSection />
+        <MoviesPreviewSection />
+        <CategoriesSection />
+        <CTASection />
       </main>
+      <Footer />
     </div>
   );
 }

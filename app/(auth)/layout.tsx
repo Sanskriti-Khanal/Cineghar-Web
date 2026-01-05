@@ -20,12 +20,12 @@ export default function AuthLayout({
   }
 
   return (
-    <section className="h-screen bg-[#500C0B]">
+    <section className="h-screen bg-[#2D0A0D]">
       <div className="h-full w-full grid md:grid-cols-2 md:gap-0">
-        <div className="flex h-full items-center justify-center px-4 md:px-10 py-8 bg-[#500C0B]">
+        <div className="flex h-full items-center justify-center px-4 md:px-10 py-8 bg-[#2D0A0D]">
           {children}
         </div>
-        <div className="relative hidden md:block h-full overflow-hidden bg-[#500C0B]">
+        <div className="relative hidden md:block h-full overflow-hidden bg-[#2D0A0D]">
           <Image
             src={bannerImage}
             alt="Auth illustration"

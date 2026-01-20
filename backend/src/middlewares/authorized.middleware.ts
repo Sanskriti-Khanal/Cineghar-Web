@@ -42,3 +42,26 @@ export const authorizedMiddleware = async (
   }
 };
 
+export const adminMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // req.user is added by authorizedMiddleware
+    // any function after authorizedMiddleware can use req.user
+    if (!req.user) {
+      throw new HttpError(401, "Unauthorized no user info");
+    }
+    if (req.user.role !== "admin") {
+      throw new HttpError(403, "Forbidden not admin");
+    }
+    return next();
+  } catch (err: Error | any) {
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+

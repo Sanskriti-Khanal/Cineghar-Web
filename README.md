@@ -24,6 +24,8 @@ A Next.js application with component separation and Zod validation for forms.
 1. Install dependencies:
 ```bash
 npm install
+cd backend && npm install
+cd ..
 ```
 
 2. Run the development server:
@@ -32,6 +34,22 @@ npm run dev
 ```
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+4. Start the backend API server (in another terminal):
+```bash
+cd backend
+npm run dev
+```
+
+## Environment Variables
+
+Create a `.env.local` file in the project root (for the frontend):
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5050/api
+```
+
+The backend already reads its own environment from `backend/.env` (see backend README).
 
 ## Scripts
 

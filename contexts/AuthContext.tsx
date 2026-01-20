@@ -2,22 +2,44 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/utils/constants";
+import { type AuthUser } from "@/lib/api/auth";
+import {
+  clearAuthCookies,
+  getAuthToken,
+  getUserData,
+} from "@/lib/cookie";
+import { handleLogin, handleRegister } from "@/lib/actions/auth-action";
 
 interface User {
   email: string;
   name?: string;
+  role?: "user" | "admin";
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    dateOfBirth?: string
+  ) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function mapAuthUserToUser(authUser: AuthUser): User {
+  return {
+    email: authUser.email,
+    name: authUser.name,
+    role: authUser.role,
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -25,65 +47,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const init = async () => {
       try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-        localStorage.removeItem("user");
+        const token = await getAuthToken();
+        const cookieUser = await getUserData();
+
+        if (token && cookieUser) {
+          setUser(mapAuthUserToUser(cookieUser as AuthUser));
+        }
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    void init();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string,
+    rememberMe: boolean = false
+  ) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // For now, simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // Mock validation - in production, this would be an API call
-      if (!email || !password) {
-        throw new Error("Email and password are required");
+      const result = await handleLogin({ email, password, rememberMe });
+
+      if (!result.success) {
+        throw new Error(result.message);
       }
 
-      const userData: User = {
-        email,
-        name: email.split("@")[0], // Mock name from email
-      };
+      const authUser = result.data as AuthUser;
+      setUser(mapAuthUserToUser(authUser));
 
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-      router.push("/auth/dashboard");
+      router.push(ROUTES.DASHBOARD);
     } catch (error) {
       setIsLoading(false);
       throw error;
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    dateOfBirth?: string
+  ) => {
     setIsLoading(true);
     try {
-      // TODO: Replace with actual API call
-      // For now, simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      // Mock validation - in production, this would be an API call
-      if (!name || !email || !password) {
-        throw new Error("All fields are required");
+      const result = await handleRegister({
+        name,
+        email,
+        password,
+        dateOfBirth,
+      });
+
+      if (!result.success) {
+        throw new Error(result.message);
       }
 
-      const userData: User = {
-        email,
-        name,
-      };
-
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-      router.push("/auth/dashboard");
+      // Auto-login after successful registration
+      await login(email, password, true);
     } catch (error) {
       setIsLoading(false);
       throw error;
@@ -92,8 +115,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("user");
-    router.push("/login");
+    void clearAuthCookies();
+    router.push(ROUTES.LOGIN);
   };
 
   return (
@@ -119,3 +142,4 @@ export function useAuth() {
   }
   return context;
 }
+

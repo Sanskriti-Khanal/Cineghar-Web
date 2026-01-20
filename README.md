@@ -46,7 +46,7 @@ npm run dev
 Create a `.env.local` file in the project root (for the frontend):
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=http://localhost:5050/api
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5050
 ```
 
 The backend already reads its own environment from `backend/.env` (see backend README).

@@ -133,9 +133,7 @@ const Navbar = () => {
                   className={`font-sans text-sm transition-colors ${
                     isActive
                       ? "text-[#8B0000] border-b-2 border-[#8B0000] pb-1"
-                      : isScrolled || !isHomePage
-                      ? "text-white hover:text-gray-300"
-                      : "text-white/90 hover:text-white"
+                      : "text-white hover:text-gray-300"
                   }`}
                 >
                   {link.label}
@@ -205,11 +203,7 @@ const Navbar = () => {
               <div className="flex items-center gap-3">
                 <Link
                   href="/login"
-                  className={`px-4 py-2 font-sans text-sm transition-colors ${
-                    isScrolled || !isHomePage
-                      ? "text-white hover:text-gray-300"
-                      : "text-white/90 hover:text-white"
-                  }`}
+                  className="px-4 py-2 font-sans text-sm transition-colors text-white hover:text-gray-300"
                 >
                   Login
                 </Link>

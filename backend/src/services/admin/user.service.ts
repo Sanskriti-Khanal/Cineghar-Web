@@ -1,5 +1,5 @@
 import { UserRepository } from "../../repositories/user.repository";
-import { createUserDto } from "../../dtos/user.dto";
+import type { createAdminUserDto } from "../../dtos/user.dto";
 import type { UpdateUserDto } from "../../dtos/user.dto";
 import bcryptjs from "bcryptjs";
 import { HttpError } from "../../errors/http-error";
@@ -7,7 +7,7 @@ import { HttpError } from "../../errors/http-error";
 let userRepository = new UserRepository();
 
 export class AdminUserService {
-  async createUser(userData: createUserDto) {
+  async createUser(userData: createAdminUserDto & { imageUrl?: string }) {
     const checkEmail = await userRepository.getUserByEmail(userData.email);
 
     if (checkEmail) {
@@ -16,15 +16,16 @@ export class AdminUserService {
 
     const hashedPassword = await bcryptjs.hash(userData.password, 10);
 
-    const newAdmin = await userRepository.createUser({
+    const newUser = await userRepository.createUser({
       name: userData.name,
       email: userData.email,
       password: hashedPassword,
       dateOfBirth: userData.dateOfBirth,
-      role: "admin",
+      role: userData.role ?? "user",
+      imageUrl: userData.imageUrl,
     });
 
-    const userResponse = newAdmin.toObject();
+    const userResponse = newUser.toObject();
     delete userResponse.password;
     return userResponse;
   }

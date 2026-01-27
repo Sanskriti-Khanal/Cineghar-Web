@@ -19,6 +19,7 @@ export const UpdateUserDto = UserSchema.pick({
   name: true,
   email: true,
   dateOfBirth: true,
+  imageUrl: true,
 }).partial();
 
 export type UpdateUserDto = z.infer<typeof UpdateUserDto>;
@@ -29,4 +30,22 @@ export const LoginUserDto = z.object({
 });
 
 export type LoginUserDto = z.infer<typeof LoginUserDto>;
+
+// Admin create user (multipart body; image from file)
+export const createAdminUserDto = UserSchema.pick({
+  name: true,
+  email: true,
+  password: true,
+  dateOfBirth: true,
+})
+  .extend({
+    confirmPassword: z.string().min(6),
+    role: z.enum(["user", "admin"]).optional().default("user"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type createAdminUserDto = z.infer<typeof createAdminUserDto>;
 

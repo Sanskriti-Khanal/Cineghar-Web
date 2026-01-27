@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AdminUserService } from "../../services/admin/user.service";
 import {
-  createUserDto,
+  createAdminUserDto,
   UpdateUserDto,
 } from "../../dtos/user.dto";
 import z from "zod";
@@ -11,7 +11,7 @@ let adminUserService = new AdminUserService();
 export class AdminUserController {
   async createUser(req: Request, res: Response) {
     try {
-      const parsedData = createUserDto.safeParse(req.body);
+      const parsedData = createAdminUserDto.safeParse(req.body);
       if (!parsedData.success) {
         return res.status(400).json({
           success: false,
@@ -19,11 +19,15 @@ export class AdminUserController {
         });
       }
 
-      const newAdmin = await adminUserService.createUser(parsedData.data);
+      const payload = { ...parsedData.data };
+      if (req.file) {
+        (payload as Record<string, unknown>).imageUrl = `/uploads/${req.file.filename}`;
+      }
+      const newUser = await adminUserService.createUser(payload);
       return res.status(201).json({
         success: true,
-        message: "Admin registration successful",
-        data: newAdmin,
+        message: "User created successfully",
+        data: newUser,
       });
     } catch (error: Error | any) {
       return res.status(error.statusCode || 500).json({
@@ -92,7 +96,11 @@ export class AdminUserController {
           message: z.prettifyError(parsed.error),
         });
       }
-      const user = await adminUserService.updateOneUser(userId, parsed.data);
+      const updateData = { ...parsed.data };
+      if (req.file) {
+        updateData.imageUrl = `/uploads/${req.file.filename}`;
+      }
+      const user = await adminUserService.updateOneUser(userId, updateData);
       return res.status(200).json({
         success: true,
         data: user,

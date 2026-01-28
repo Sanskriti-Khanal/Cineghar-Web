@@ -65,3 +65,27 @@ export const adminMiddleware = async (
   }
 };
 
+/** Only the user themselves or an admin can access (use after authorizedMiddleware) */
+export const selfOrAdminMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user) {
+      throw new HttpError(401, "Unauthorized no user info");
+    }
+    const targetId = req.params.id;
+    const userId = (req.user as IUser)._id?.toString?.();
+    if (userId === targetId || req.user.role === "admin") {
+      return next();
+    }
+    throw new HttpError(403, "Forbidden: can only update own profile or as admin");
+  } catch (err: Error | any) {
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+

@@ -7,6 +7,7 @@ export interface AuthUser {
   email: string;
   role: "user" | "admin";
   dateOfBirth?: string;
+  imageUrl?: string;
 }
 
 interface ApiResponse<T> {
@@ -57,5 +58,26 @@ export const loginUserApi = async (params: {
     token: data.token,
     message: data.message,
   };
+};
+
+export const getProfileApi = async () => {
+  const { data } = await axios.get<ApiResponse<AuthUser>>(API.AUTH.WHOAMI);
+  return data;
+};
+
+export const updateProfileApi = async (formData: FormData) => {
+  const { data } = await axios.put<ApiResponse<AuthUser>>(
+    API.AUTH.UPDATE_PROFILE,
+    formData
+  );
+  return data;
+};
+
+export const updateUserByIdApi = async (id: string, formData: FormData) => {
+  const { data } = await axios.put<ApiResponse<AuthUser>>(
+    API.AUTH.UPDATE_BY_ID(id),
+    formData
+  );
+  return data;
 };
 

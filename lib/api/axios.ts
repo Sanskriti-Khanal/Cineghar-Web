@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthTokenSync } from "@/lib/cookie";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
@@ -9,6 +10,17 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getAuthTokenSync();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+  return config;
 });
 
 axiosInstance.interceptors.response.use(

@@ -7,6 +7,12 @@ export const getAuthToken = async (): Promise<string | null> => {
   return Cookies.get(TOKEN_COOKIE_KEY) ?? null;
 };
 
+/** Sync getter for use in axios interceptor (client-side only) */
+export const getAuthTokenSync = (): string | undefined => {
+  if (typeof window === "undefined") return undefined;
+  return Cookies.get(TOKEN_COOKIE_KEY) ?? undefined;
+};
+
 export const setAuthToken = async (
   token: string,
   rememberMe: boolean = false

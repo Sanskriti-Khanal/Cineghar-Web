@@ -20,6 +20,9 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   DASHBOARD: "/auth/dashboard",
+  USER_PROFILE: "/user/profile",
+  ADMIN_USERS: "/admin/users",
+  ADMIN_USERS_CREATE: "/admin/users/create",
 } as const;
 
 

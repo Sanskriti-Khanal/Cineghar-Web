@@ -86,7 +86,7 @@ export default function MoviesPreviewSection() {
                           {movie.meta}
                         </p>
                       </div>
-                      {movie.rating && (
+                      {"rating" in movie && movie.rating && (
                         <div className="text-right flex-shrink-0">
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#8B0000]/10 text-[#8B0000] text-[10px] font-medium">
                             {movie.rating} ★

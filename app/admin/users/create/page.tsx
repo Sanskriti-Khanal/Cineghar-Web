@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Link from "next/link";
 import { createAdminUserApi } from "@/lib/api/admin";
 import FormInput from "@/app/_components/FormInput";
 import DateInput from "@/app/_components/DateInput";
@@ -64,22 +63,13 @@ export default function AdminCreateUserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-md mx-auto">
-        <div className="mb-6">
-          <Link
-            href="/admin/users"
-            className="text-sm text-[#8B0000] hover:underline"
-          >
-            ← Back to Users
-          </Link>
-        </div>
+    <div>
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Create User</h1>
+        <p className="mt-1 text-sm text-gray-500">Add a new user to the system</p>
+      </header>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          Create User
-        </h1>
-
-        <div className="rounded-xl bg-white p-6 shadow-lg">
+      <div className="max-w-md rounded-xl bg-white p-6 shadow-sm border border-gray-200">
           {error && (
             <Alert variant="error" className="mb-4" onClose={() => setError(null)}>
               {error}
@@ -90,7 +80,7 @@ export default function AdminCreateUserPage() {
               {success}
             </Alert>
           )}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 [&_label]:text-gray-900 [&_input]:text-gray-900 [&_input::placeholder]:text-gray-600 [&_select]:text-gray-900">
             <FormInput
               label="Name"
               type="text"
@@ -124,33 +114,32 @@ export default function AdminCreateUserPage() {
               {...register("confirmPassword")}
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Role
               </label>
               <select
                 {...register("role")}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8B0000] focus:border-[#8B0000]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-[#8B0000] focus:border-[#8B0000]"
               >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Profile Image (optional)
               </label>
               <input
                 id="user-image"
                 type="file"
                 accept="image/*"
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-[#8B0000] file:text-white hover:file:bg-[#6B0000]"
+                className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-[#8B0000] file:text-white hover:file:bg-[#6B0000]"
               />
             </div>
             <Button type="submit" variant="primary" isLoading={isSubmitting}>
               Create User
             </Button>
           </form>
-        </div>
       </div>
     </div>
   );

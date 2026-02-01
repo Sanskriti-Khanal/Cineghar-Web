@@ -8,22 +8,18 @@ export default function AdminUserEditPage() {
   const id = params.id as string;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
-          <Link
-            href={`/admin/users/${id}`}
-            className="text-sm text-[#8B0000] hover:underline"
-          >
-            ← Back to User
-          </Link>
-        </div>
-        <div className="bg-white rounded-xl shadow p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            Edit User (dummy page)
-          </h1>
-          <p className="text-gray-600">User ID: <strong>{id}</strong></p>
-        </div>
+    <div>
+      <header className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Edit User</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          <Link href="/admin/users" className="text-[#8B0000] hover:underline">Users</Link>
+          {" / "}
+          <Link href={`/admin/users/${id}`} className="text-[#8B0000] hover:underline">User {id}</Link>
+          {" / Edit"}
+        </p>
+      </header>
+      <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm text-center">
+        <p className="text-gray-600">User ID: <strong>{id}</strong></p>
       </div>
     </div>
   );

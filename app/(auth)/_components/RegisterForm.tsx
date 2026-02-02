@@ -29,7 +29,12 @@ const RegisterForm = () => {
   const onSubmit = async (data: RegisterFormInputs) => {
     setError(null);
     try {
-      await registerUser(data.name, data.email, data.password);
+      await registerUser(
+        data.name,
+        data.email,
+        data.password,
+        data.dateOfBirth
+      );
       // Redirect is handled by AuthContext
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed. Please try again.");

@@ -32,7 +32,7 @@ const LoginForm = () => {
   const onSubmit = async (data: LoginFormInputs) => {
     setError(null);
     try {
-      await login(data.email, data.password);
+      await login(data.email, data.password, data.rememberMe);
       // Redirect is handled by AuthContext
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed. Please check your credentials.");

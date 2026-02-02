@@ -8,6 +8,7 @@ const userMongoSchema: Schema = new Schema(
     password: { type: String, required: true },
     dateOfBirth: { type: String, required: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    imageUrl: { type: String, required: false },
   },
   {
     timestamps: true,

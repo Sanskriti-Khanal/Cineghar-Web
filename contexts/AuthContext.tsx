@@ -79,7 +79,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const authUser = result.data as AuthUser;
       setUser(mapAuthUserToUser(authUser));
 
-      router.push(ROUTES.DASHBOARD);
+      if (authUser.role === "admin") {
+        router.push(ROUTES.ADMIN_DASHBOARD);
+      } else {
+        router.push(ROUTES.DASHBOARD);
+      }
     } catch (error) {
       setIsLoading(false);
       throw error;

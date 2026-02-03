@@ -176,13 +176,23 @@ const Navbar = () => {
             {/* User Avatar or Login/Signup Buttons */}
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-gray-400 overflow-hidden cursor-pointer flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
-                      {user?.name?.charAt(0).toUpperCase() ||
-                        user?.email?.charAt(0).toUpperCase() ||
-                        "U"}
-                    </span>
+                <Link href="/user/profile" className="flex items-center gap-2 group">
+                  <div className="w-10 h-10 rounded-full bg-gray-400 overflow-hidden cursor-pointer flex items-center justify-center group-hover:ring-2 group-hover:ring-[#8B0000] transition">
+                    {user?.imageUrl ? (
+                      // Show uploaded profile image
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050"}${user.imageUrl}`}
+                        alt={user?.name || user?.email || "Profile"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      // Fallback to initials
+                      <span className="text-white font-semibold text-sm">
+                        {user?.name?.charAt(0).toUpperCase() ||
+                          user?.email?.charAt(0).toUpperCase() ||
+                          "U"}
+                      </span>
+                    )}
                   </div>
                   <span
                     className={`text-sm hidden md:block ${
@@ -191,7 +201,7 @@ const Navbar = () => {
                   >
                     {user?.name || user?.email}
                   </span>
-                </div>
+                </Link>
                 <button
                   onClick={logout}
                   className="px-4 py-2 bg-[#8B0000] text-white font-sans text-sm rounded-lg hover:bg-[#6B0000] transition-colors"

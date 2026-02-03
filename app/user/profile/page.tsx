@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getProfileApi, updateProfileApi } from "@/lib/api/auth";
 import type { AuthUser } from "@/lib/api/auth";
+import { useAuth } from "@/contexts/AuthContext";
+import { ROUTES } from "@/utils/constants";
 import FormInput from "@/app/_components/FormInput";
 import DateInput from "@/app/_components/DateInput";
 import Button from "@/app/_components/Button";
@@ -25,6 +28,8 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { updateUser } = useAuth();
+  const router = useRouter();
 
   const {
     register,
@@ -71,7 +76,18 @@ export default function UserProfilePage() {
       const res = await updateProfileApi(formData);
       if (res.data) {
         setProfile(res.data);
+        // Keep global auth state in sync so navbar and other places
+        // immediately reflect the updated profile picture and details.
+        updateUser({
+          email: res.data.email,
+          name: res.data.name,
+          role: res.data.role,
+          dateOfBirth: res.data.dateOfBirth,
+          imageUrl: res.data.imageUrl,
+        });
         setSuccess("Profile updated successfully.");
+        // Redirect user back to dashboard after successful update
+        router.push(ROUTES.DASHBOARD);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update profile");

@@ -8,6 +8,7 @@ import {
   clearAuthCookies,
   getAuthToken,
   getUserData,
+  setUserData,
 } from "@/lib/cookie";
 import { handleLogin, handleRegister } from "@/lib/actions/auth-action";
 
@@ -15,6 +16,8 @@ interface User {
   email: string;
   name?: string;
   role?: "user" | "admin";
+   dateOfBirth?: string;
+  imageUrl?: string;
 }
 
 interface AuthContextType {
@@ -29,6 +32,7 @@ interface AuthContextType {
   ) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,6 +42,8 @@ function mapAuthUserToUser(authUser: AuthUser): User {
     email: authUser.email,
     name: authUser.name,
     role: authUser.role,
+    dateOfBirth: authUser.dateOfBirth,
+    imageUrl: authUser.imageUrl,
   };
 }
 
@@ -123,6 +129,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push(ROUTES.LOGIN);
   };
 
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    // Persist updated user in cookies so it is available on reload
+    void setUserData(
+      {
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: updatedUser.role,
+        dateOfBirth: updatedUser.dateOfBirth,
+        imageUrl: updatedUser.imageUrl,
+      },
+      true
+    );
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -132,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         isAuthenticated: !!user,
+        updateUser,
       }}
     >
       {children}

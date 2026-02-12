@@ -9,7 +9,13 @@ const app: Application = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5050"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5050",
+      process.env.FRONTEND_URL || "http://localhost:3000",
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
+      process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "",
+    ].filter(Boolean),
     credentials: true,
   })
 );

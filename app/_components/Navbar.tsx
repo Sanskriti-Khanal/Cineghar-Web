@@ -16,6 +16,7 @@ const Navbar = () => {
 
   // Only track sections on homepage
   const isHomePage = pathname === "/";
+  const isDashboardPage = pathname === "/auth/dashboard";
 
   useEffect(() => {
     if (!isHomePage) return;
@@ -67,12 +68,22 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isHomePage]);
 
-  const navLinks = [
+  const homeNavLinks = [
     { href: "/", label: "Home", section: "home" },
     { href: "/#features", label: "Features", section: "features" },
     { href: "/#movies", label: "Movies", section: "movies" },
     { href: "/#categories", label: "Categories", section: "categories" },
   ];
+
+  const dashboardNavLinks = [
+    { href: "/", label: "Home" },
+    { href: "/auth/movies", label: "Movies" },
+    { href: "/auth/loyalty-points", label: "Loyalty points" },
+    { href: "/auth/sales", label: "Sales" },
+    { href: "/auth/currently-streaming", label: "Currently Streaming" },
+  ];
+
+  const navLinks = isDashboardPage ? dashboardNavLinks : homeNavLinks;
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("/#")) {
@@ -92,7 +103,7 @@ const Navbar = () => {
           ? "translate-y-0"
           : "-translate-y-full"
       } ${
-        isScrolled || !isHomePage
+        isScrolled || !isHomePage || isDashboardPage
           ? "shadow-lg"
           : ""
       }`}
@@ -121,9 +132,11 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8 flex-1 justify-center">
             {navLinks.map((link) => {
               const isActive =
-                isHomePage &&
-                activeSection === link.section &&
-                (link.href === "/" || link.href.startsWith("/#"));
+                isDashboardPage
+                  ? pathname === link.href
+                  : isHomePage &&
+                    activeSection === link.section &&
+                    (link.href === "/" || link.href.startsWith("/#"));
 
               return (
                 <Link
@@ -150,7 +163,7 @@ const Navbar = () => {
                 type="text"
                 placeholder="Search movies"
                 className={`rounded-lg px-4 py-2 pr-10 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8B0000] w-48 transition-colors ${
-                  isScrolled || !isHomePage
+                  isScrolled || !isHomePage || isDashboardPage
                     ? "bg-gray-800 text-white border border-gray-700"
                     : "bg-white/10 backdrop-blur-sm text-white border border-white/20 placeholder-white/60"
                 }`}
@@ -165,7 +178,7 @@ const Navbar = () => {
                 >
                   <path
                     d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zM13 13l-3-3"
-                    stroke={isScrolled || !isHomePage ? "#999" : "rgba(255,255,255,0.6)"}
+                    stroke={isScrolled || !isHomePage || isDashboardPage ? "#999" : "rgba(255,255,255,0.6)"}
                     strokeWidth="2"
                     strokeLinecap="round"
                   />
@@ -196,7 +209,7 @@ const Navbar = () => {
                   </div>
                   <span
                     className={`text-sm hidden md:block ${
-                      isScrolled || !isHomePage ? "text-white" : "text-white/90"
+                      isScrolled || !isHomePage || isDashboardPage ? "text-white" : "text-white/90"
                     }`}
                   >
                     {user?.name || user?.email}

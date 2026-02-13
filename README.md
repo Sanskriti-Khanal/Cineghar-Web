@@ -1,119 +1,110 @@
+# Cineghar Monorepo
+
+This repository contains the Cineghar **monorepo** inside the `cineghar/` directory, with separate `frontend` and `backend` projects.
+
+## Structure
+
+- `cineghar/frontend` – Next.js app (web frontend)
+- `cineghar/backend` – Express + MongoDB API (backend)
+
+## Getting Started
+
+From the `cineghar/` directory:
+
+```bash
+cd cineghar
+npm install
+```
+
+Run development servers:
+
+```bash
+# Frontend only
+npm run dev:frontend
+
+# Backend only
+npm run dev:backend
+
+# Both together
+npm run dev:all
+```
+
+See `cineghar/frontend/README.md` and `cineghar/backend/README.md` for more detailed app-specific docs.
+
 # Cineghar Web
 
-A Next.js monorepo application with Express backend, component separation, and Zod validation for forms.
-
-## Project Structure (Monorepo)
-
-```
-cineghar-web/
-├── app/                    # Next.js frontend application
-├── packages/
-│   └── backend/            # Express backend API
-├── api/                   # Vercel serverless functions
-└── vercel.json           # Vercel deployment configuration
-```
+A Next.js application with component separation and Zod validation for forms.
 
 ## Pages
 
-1. `/` or `/home` - Home Page
+1. `/` or `/home` - Home Page (dummy for now)
 2. `/login` - Login Page with form validation
 3. `/register` - Register Page with form validation
-4. `/auth/dashboard` - Dashboard page
+4. `/auth/dashboard` - Dashboard page (dummy for now)
 
 ## Features
 
 - Next.js 16 with App Router
-- Express backend API
-- Monorepo structure with npm workspaces
 - TypeScript
 - Tailwind CSS for styling
 - Zod for form validation
 - React Hook Form for form management
-- Vercel-ready deployment
+- Component separation
+- Reusable FormInput component
 
-## Getting Started
+## Getting Started (Monorepo)
 
-1. Install dependencies (installs both frontend and backend):
+1. Install dependencies (root + backend workspace):
 ```bash
 npm install
 ```
 
-2. Run both frontend and backend together:
+2. Run the frontend (Next.js) dev server:
+```bash
+npm run dev
+```
+
+3. Run the backend API dev server:
+```bash
+npm run dev:backend
+```
+
+4. Or run both frontend and backend together:
 ```bash
 npm run dev:all
 ```
 
-Or run them separately:
-```bash
-# Frontend only
-npm run dev
-
-# Backend only (in another terminal)
-npm run dev:backend
-```
-
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
-4. Backend API runs on [http://localhost:5050](http://localhost:5050)
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Environment Variables
 
-### Frontend (.env.local in root)
+Create a `.env.local` file in the project root (for the frontend):
+
 ```bash
 NEXT_PUBLIC_API_BASE_URL=http://localhost:5050
 ```
 
-### Backend (packages/backend/.env)
-```bash
-PORT=5050
-MONGODB_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-MAIL_FROM="CineGhar <your_email@gmail.com>"
-FRONTEND_URL=http://localhost:3000
-```
+The backend already reads its own environment from `backend/.env` (see backend README).
 
-## Scripts
+## Scripts (root)
 
-- `npm run dev` - Start frontend development server
-- `npm run dev:backend` - Start backend development server
-- `npm run dev:all` - Start both frontend and backend concurrently
-- `npm run build` - Build frontend for production
-- `npm run build:backend` - Build backend for production
-- `npm run start` - Start production server
+- `npm run dev` - Start Next.js development server
+- `npm run dev:backend` - Start backend dev server (`backend` workspace)
+- `npm run dev:all` - Start both frontend and backend in parallel
+- `npm run build` - Build the Next.js app
+- `npm run build:backend` - Build the backend (`backend` workspace)
+- `npm run build:all` - Build both frontend and backend
+- `npm run start` - Start the Next.js production server
+- `npm run start:backend` - Start the backend production server
 - `npm run lint` - Run ESLint to check code quality
 
-## Vercel Deployment
+## Project Structure
 
-This project is configured as a monorepo for Vercel deployment.
-
-### Deployment Steps:
-
-1. **Push to GitHub/GitLab/Bitbucket**
-
-2. **Connect to Vercel:**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your repository
-   - Vercel will auto-detect Next.js
-
-3. **Configure Environment Variables in Vercel:**
-   - Add all backend environment variables from `packages/backend/.env`
-   - Add frontend variables:
-     - `NEXT_PUBLIC_API_BASE_URL` - Your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
-   - Update `FRONTEND_URL` to your Vercel URL
-
-4. **Deploy:**
-   - Vercel will automatically build and deploy
-   - Backend API routes are available at `/api/*`
-   - Frontend is served at the root
-
-### Important Notes:
-- Backend Express routes are wrapped as Vercel serverless functions in `api/[...path].ts`
-- All API routes (`/api/auth/*`, `/api/admin/*`) will be handled by the Express backend
-- Make sure to set all environment variables in Vercel dashboard
+- `app/` - Next.js app directory with pages and components
+- `backend/` - Express backend API
+- `contexts/` - React context providers
+- `utils/` - Utility functions and constants
+- `public/` - Static assets
 
 ## Technologies Used
 

@@ -1,0 +1,37 @@
+import express, { Application, Request, Response } from "express";
+import cors from "cors";
+import path from "path";
+import authRoute from "./routes/auth.route";
+import adminAuthRoute from "./routes/admin/auth.route";
+import adminUserRoute from "./routes/admin/user.route";
+import movieRoute from "./routes/movie.route";
+
+const app: Application = express();
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5050",
+      process.env.FRONTEND_URL || "http://localhost:3000",
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "",
+      process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : "",
+    ].filter(Boolean),
+    credentials: true,
+  })
+);
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/auth", authRoute);
+app.use("/api/admin/auth", adminAuthRoute);
+app.use("/api/admin/users", adminUserRoute);
+app.use("/api/movies", movieRoute);
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("CineGhar API Server");
+});
+
+export default app;

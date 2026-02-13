@@ -1,0 +1,44 @@
+{
+  "name": "cineghar-web",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "dev": "next dev --webpack",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:backend\"",
+    "build": "next build",
+    "build:backend": "npm run build --workspace backend",
+    "build:all": "npm run build && npm run build:backend",
+    "start": "next start",
+    "start:backend": "npm start --workspace backend",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "axios": "^1.13.2",
+    "js-cookie": "^3.0.5",
+    "lucide-react": "^0.562.0",
+    "next": "16.1.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-hook-form": "^7.69.0",
+    "serverless-http": "^4.0.0",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vercel/node": "^5.6.2",
+    "concurrently": "^9.2.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

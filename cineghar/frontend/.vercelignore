@@ -1,0 +1,10 @@
+# Ignore backend source files (they're compiled separately)
+../backend/src/**/*.ts
+../backend/tsconfig.json
+../backend/jest.config.js
+../backend/src/__tests__
+
+# Ignore development files
+*.log
+.DS_Store
+node_modules

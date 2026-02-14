@@ -1,6 +1,6 @@
 {
   "/page": "app/page.js",
-  "/(auth)/forgot-password/page": "app/(auth)/forgot-password/page.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/admin/page": "app/admin/page.js"
+  "/auth/dashboard/page": "app/auth/dashboard/page.js",
+  "/auth/movies/page": "app/auth/movies/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js"
 }

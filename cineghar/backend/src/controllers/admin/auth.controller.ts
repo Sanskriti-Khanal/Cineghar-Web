@@ -40,7 +40,7 @@ export class AdminUserController {
 
   async getOneUser(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = String(req.params.id);
       const user = await adminUserService.getOneUser(userId);
       return res.status(200).json({
         success: true,
@@ -84,7 +84,7 @@ export class AdminUserController {
 
   async deleteUser(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = String(req.params.id);
       await adminUserService.deleteOneUser(userId);
       return res.status(200).json({
         success: true,
@@ -100,7 +100,7 @@ export class AdminUserController {
 
   async updateUser(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = String(req.params.id);
       const parsed = UpdateUserDto.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({

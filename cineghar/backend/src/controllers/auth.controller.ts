@@ -99,7 +99,7 @@ export class AuthController {
 
   async getOneUser(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = String(req.params.id);
       if (!isValidObjectId(userId)) {
         return res.status(400).json({
           success: false,
@@ -138,7 +138,7 @@ export class AuthController {
 
   async deleteUser(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = String(req.params.id);
       if (!isValidObjectId(userId)) {
         return res.status(400).json({
           success: false,
@@ -160,7 +160,7 @@ export class AuthController {
 
   async updateUser(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = String(req.params.id);
       if (!isValidObjectId(userId)) {
         return res.status(400).json({
           success: false,
@@ -191,7 +191,7 @@ export class AuthController {
   /** PUT /api/auth/:id - update user by id (self or admin), with optional image */
   async updateUserById(req: Request, res: Response) {
     try {
-      const userId = req.params.id;
+      const userId = String(req.params.id);
       if (!isValidObjectId(userId)) {
         return res.status(400).json({
           success: false,

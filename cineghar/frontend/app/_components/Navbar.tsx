@@ -16,7 +16,7 @@ const Navbar = () => {
 
   // Only track sections on homepage
   const isHomePage = pathname === "/";
-  const isDashboardPage = pathname === "/auth/dashboard";
+  const isAuthSection = pathname.startsWith("/auth");
 
   useEffect(() => {
     if (!isHomePage) return;
@@ -80,10 +80,9 @@ const Navbar = () => {
     { href: "/auth/movies", label: "Movies" },
     { href: "/auth/loyalty-points", label: "Loyalty points" },
     { href: "/auth/sales", label: "Sales" },
-    { href: "/auth/currently-streaming", label: "Currently Streaming" },
   ];
 
-  const navLinks = isDashboardPage ? dashboardNavLinks : homeNavLinks;
+  const navLinks = isAuthSection ? dashboardNavLinks : homeNavLinks;
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("/#")) {
@@ -99,14 +98,8 @@ const Navbar = () => {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-gradient-to-br from-[#1a1a1a] via-[#2a2a2a] to-[#1a1a1a] ${
-        showNavbar
-          ? "translate-y-0"
-          : "-translate-y-full"
-      } ${
-        isScrolled || !isHomePage || isDashboardPage
-          ? "shadow-lg"
-          : ""
-      }`}
+        showNavbar ? "translate-y-0" : "-translate-y-full"
+      } ${isScrolled || !isHomePage || isAuthSection ? "shadow-lg" : ""}`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -132,7 +125,7 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8 flex-1 justify-center">
             {navLinks.map((link) => {
               const isActive =
-                isDashboardPage
+                isAuthSection
                   ? pathname === link.href
                   : isHomePage &&
                     activeSection === link.section &&
@@ -145,8 +138,8 @@ const Navbar = () => {
                   onClick={(e) => handleNavClick(e, link.href)}
                   className={`font-sans text-sm transition-colors ${
                     isActive
-                      ? "text-[#8B0000] border-b-2 border-[#8B0000] pb-1"
-                      : "text-white hover:text-gray-300"
+                      ? "text-white border-b-2 border-white pb-1"
+                      : "text-white opacity-90 hover:opacity-100"
                   }`}
                 >
                   {link.label}
@@ -163,7 +156,7 @@ const Navbar = () => {
                 type="text"
                 placeholder="Search movies"
                 className={`rounded-lg px-4 py-2 pr-10 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8B0000] w-48 transition-colors ${
-                  isScrolled || !isHomePage || isDashboardPage
+                  isScrolled || !isHomePage || isAuthSection
                     ? "bg-gray-800 text-white border border-gray-700"
                     : "bg-white/10 backdrop-blur-sm text-white border border-white/20 placeholder-white/60"
                 }`}
@@ -178,7 +171,7 @@ const Navbar = () => {
                 >
                   <path
                     d="M7 12A5 5 0 1 0 7 2a5 5 0 0 0 0 10zM13 13l-3-3"
-                    stroke={isScrolled || !isHomePage || isDashboardPage ? "#999" : "rgba(255,255,255,0.6)"}
+                    stroke={isScrolled || !isHomePage || isAuthSection ? "#999" : "rgba(255,255,255,0.6)"}
                     strokeWidth="2"
                     strokeLinecap="round"
                   />
@@ -209,7 +202,7 @@ const Navbar = () => {
                   </div>
                   <span
                     className={`text-sm hidden md:block ${
-                      isScrolled || !isHomePage || isDashboardPage ? "text-white" : "text-white/90"
+                      isScrolled || !isHomePage || isAuthSection ? "text-white" : "text-white/90"
                     }`}
                   >
                     {user?.name || user?.email}

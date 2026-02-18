@@ -6,15 +6,18 @@ export default function FeaturesSection() {
   const features = [
     {
       title: "Curated movie collection",
-      description: "Browse thousands of handpicked movies across all genres, from classic cinema to latest blockbusters.",
+      description:
+        "Browse thousands of handpicked movies across all genres, from classic cinema to latest blockbusters.",
     },
     {
       title: "Personalized recommendations",
-      description: "Get movie suggestions tailored to your taste based on your viewing history and preferences.",
+      description:
+        "Get movie suggestions tailored to your taste based on your viewing history and preferences.",
     },
     {
       title: "Seamless streaming experience",
-      description: "Watch movies in high quality with smooth playback. Access your watchlist anytime.",
+      description:
+        "Watch movies in high quality with smooth playback. Access your watchlist anytime.",
     },
   ];
 

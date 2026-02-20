@@ -11,6 +11,8 @@ export const API = {
   ADMIN: {
     USERS: "/api/admin/users",
     USER_BY_ID: (id: string) => `/api/admin/users/${id}`,
+    MOVIES: "/api/admin/movies",
+    MOVIE_BY_ID: (id: string) => `/api/admin/movies/${id}`,
   },
 } as const;
 

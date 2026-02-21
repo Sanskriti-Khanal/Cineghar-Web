@@ -10,6 +10,24 @@ import FormInput from "@/app/_components/FormInput";
 import Button from "@/app/_components/Button";
 import Alert from "@/app/_components/Alert";
 
+const MOVIE_LANGUAGES = [
+  "",
+  "English",
+  "Nepali",
+  "Hindi",
+  "Chinese",
+  "Japanese",
+  "Korean",
+  "Spanish",
+  "French",
+  "German",
+  "Italian",
+  "Portuguese",
+  "Arabic",
+  "Thai",
+  "Other",
+];
+
 const createMovieSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -18,6 +36,7 @@ const createMovieSchema = z.object({
   rating: z.coerce.number().min(0).max(10),
   posterUrl: z.union([z.string().url(), z.literal("")]).optional(),
   releaseDate: z.string().optional(),
+  language: z.string().optional(),
 });
 
 type CreateMovieFormInputs = z.infer<typeof createMovieSchema>;
@@ -46,6 +65,7 @@ export default function AdminCreateMoviePage() {
       formData.append("rating", String(data.rating));
       if (data.releaseDate) formData.append("releaseDate", data.releaseDate);
       if (data.posterUrl) formData.append("posterUrl", data.posterUrl);
+      if (data.language) formData.append("language", data.language);
       const fileInput = document.getElementById("movie-poster") as HTMLInputElement;
       if (fileInput?.files?.[0]) formData.append("poster", fileInput.files[0]);
       await createAdminMovieApi(formData);
@@ -171,6 +191,26 @@ export default function AdminCreateMoviePage() {
             error={errors.releaseDate}
             {...register("releaseDate")}
           />
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-900">
+              Language
+            </label>
+            <select
+              className={`block w-full rounded-lg border px-3 py-2 text-sm text-gray-900 focus:border-[#8B0000] focus:outline-none focus:ring-1 focus:ring-[#8B0000] ${
+                errors.language ? "border-red-500" : "border-gray-300"
+              }`}
+              {...register("language")}
+            >
+              {MOVIE_LANGUAGES.map((lang) => (
+                <option key={lang || "none"} value={lang}>
+                  {lang || "Select language (optional)"}
+                </option>
+              ))}
+            </select>
+            {errors.language && (
+              <p className="mt-1 text-sm text-red-600">{errors.language.message}</p>
+            )}
+          </div>
           <div className="flex gap-2 pt-2">
             <Button type="submit" variant="primary" isLoading={isSubmitting}>
               Create Movie

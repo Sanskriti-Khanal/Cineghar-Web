@@ -22,6 +22,7 @@ function buildMovieBody(body: Record<string, unknown>, file?: Express.Multer.Fil
     rating: Number(body.rating) ?? 0,
     posterUrl: posterUrl || (body.posterUrl as string | undefined) || undefined,
     releaseDate: body.releaseDate ? String(body.releaseDate) : undefined,
+    language: body.language ? String(body.language) : undefined,
   };
 }
 

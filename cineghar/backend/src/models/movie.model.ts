@@ -9,6 +9,7 @@ const movieSchema: Schema = new Schema(
     rating: { type: Number, required: true, min: 0, max: 10 },
     posterUrl: { type: String, required: false },
     releaseDate: { type: Date, required: false },
+    language: { type: String, required: false },
   },
   { timestamps: true }
 );
@@ -22,6 +23,7 @@ export interface IMovie extends Document {
   rating: number;
   posterUrl?: string;
   releaseDate?: Date;
+  language?: string;
   createdAt: Date;
   updatedAt: Date;
 }

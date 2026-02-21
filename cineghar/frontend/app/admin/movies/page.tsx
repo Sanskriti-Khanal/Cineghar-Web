@@ -120,6 +120,9 @@ export default function AdminMoviesPage() {
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                 Rating
               </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                Language
+              </th>
               <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                 Actions
               </th>
@@ -129,7 +132,7 @@ export default function AdminMoviesPage() {
             {movies.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="px-6 py-8 text-center text-gray-500"
                 >
                   No movies found.
@@ -166,6 +169,9 @@ export default function AdminMoviesPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     {movie.rating}/10
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    {movie.language || "—"}
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
                     <Link

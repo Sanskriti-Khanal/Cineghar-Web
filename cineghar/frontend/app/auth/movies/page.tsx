@@ -199,6 +199,7 @@ export default function MoviesPage() {
                                 ? movie.genre.join(" • ")
                                 : "Feature film"}{" "}
                               • {movie.duration} min
+                              {movie.language ? ` • ${movie.language}` : ""}
                             </p>
                             <p className="text-[11px] text-gray-400">
                               {movie.releaseDate

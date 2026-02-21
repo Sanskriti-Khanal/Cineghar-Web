@@ -181,6 +181,12 @@ export default function MovieDetailsPage() {
                   <h4 className="text-sm font-semibold text-white mb-1">Rating</h4>
                   <p>{movie.rating}/10</p>
                 </div>
+                {movie.language && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-white mb-1">Language</h4>
+                    <p>{movie.language}</p>
+                  </div>
+                )}
                 {movie.releaseDate && (
                   <div>
                     <h4 className="text-sm font-semibold text-white mb-1">Release</h4>

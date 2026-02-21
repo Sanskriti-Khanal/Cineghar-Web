@@ -164,7 +164,7 @@ export default function AdminMovieDetailPage() {
                   {movie.genre?.length ? movie.genre.join(", ") : "—"}
                 </p>
               </div>
-              <div className="flex gap-6">
+              <div className="flex gap-6 flex-wrap">
                 <div>
                   <label className="text-xs font-medium uppercase tracking-wider text-gray-500">
                     Duration
@@ -181,6 +181,16 @@ export default function AdminMovieDetailPage() {
                     {movie.rating}/10
                   </p>
                 </div>
+                {movie.language && (
+                  <div>
+                    <label className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                      Language
+                    </label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {movie.language}
+                    </p>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-xs font-medium uppercase tracking-wider text-gray-500">

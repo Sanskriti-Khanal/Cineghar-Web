@@ -16,6 +16,7 @@ export class AdminMovieService {
     };
     if (data.posterUrl) payload.posterUrl = data.posterUrl;
     if (data.releaseDate) payload.releaseDate = new Date(data.releaseDate);
+    if (data.language) payload.language = data.language;
     return movieRepository.create(payload as Parameters<typeof movieRepository.create>[0]);
   }
 

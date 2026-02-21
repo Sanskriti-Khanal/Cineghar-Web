@@ -10,6 +10,7 @@ export interface Movie {
   rating: number;
   posterUrl?: string;
   releaseDate?: string;
+  language?: string;
   createdAt?: string;
   updatedAt?: string;
 }

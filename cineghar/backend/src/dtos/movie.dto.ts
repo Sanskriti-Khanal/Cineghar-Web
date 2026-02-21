@@ -8,6 +8,7 @@ export const CreateMovieDto = z.object({
   rating: z.coerce.number().min(0).max(10),
   posterUrl: z.union([z.string().url(), z.string().startsWith("/")]).optional().or(z.literal("")),
   releaseDate: z.string().optional(),
+  language: z.string().optional(),
 });
 
 export type CreateMovieDto = z.infer<typeof CreateMovieDto>;
@@ -20,6 +21,7 @@ export const UpdateMovieDto = z.object({
   rating: z.coerce.number().min(0).max(10).optional(),
   posterUrl: z.union([z.string().url(), z.string().startsWith("/")]).optional().or(z.literal("")),
   releaseDate: z.string().optional(),
+  language: z.string().optional(),
 });
 
 export type UpdateMovieDto = z.infer<typeof UpdateMovieDto>;

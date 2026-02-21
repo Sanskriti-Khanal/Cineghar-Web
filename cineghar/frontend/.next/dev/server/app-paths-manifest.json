@@ -1,5 +1,6 @@
 {
   "/auth/dashboard/page": "app/auth/dashboard/page.js",
+  "/auth/movies/[id]/page": "app/auth/movies/[id]/page.js",
   "/admin/movies/page": "app/admin/movies/page.js",
   "/admin/movies/create/page": "app/admin/movies/create/page.js"
 }

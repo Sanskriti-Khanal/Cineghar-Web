@@ -74,6 +74,7 @@ export default function DashboardMovieGrid() {
                   <p className="text-sm font-semibold line-clamp-2">{movie.title}</p>
                   <p className="text-[11px] text-gray-200">
                     {movie.genre?.length ? movie.genre.join(" • ") : "—"}
+                    {movie.language ? ` • ${movie.language}` : ""}
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 text-[11px]">

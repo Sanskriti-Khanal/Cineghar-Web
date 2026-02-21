@@ -12,6 +12,7 @@ export interface CinegharMovie {
   rating: number;
   posterUrl?: string;
   releaseDate?: string;
+  language?: string;
   createdAt?: string;
   updatedAt?: string;
 }

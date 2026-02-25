@@ -98,7 +98,7 @@ export class AdminRewardController {
         {
           $set: data,
         },
-        { new: true }
+        { returnDocument: "after" }
       ).lean();
       if (!reward) {
         throw new HttpError(404, "Reward not found");

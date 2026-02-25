@@ -32,7 +32,7 @@ export class MovieRepository {
   }
 
   async update(id: string, data: Partial<IMovie>): Promise<IMovie | null> {
-    return MovieModel.findByIdAndUpdate(id, data, { new: true }).lean();
+    return MovieModel.findByIdAndUpdate(id, data, { returnDocument: "after" }).lean();
   }
 
   async delete(id: string): Promise<boolean> {

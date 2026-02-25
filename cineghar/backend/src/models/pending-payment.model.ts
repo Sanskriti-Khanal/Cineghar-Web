@@ -7,6 +7,8 @@ const pendingPaymentSchema: Schema = new Schema(
     user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     seats: { type: [String], required: true },
     totalPrice: { type: Number, required: true },
+    showtimeId: { type: String, required: true },
+    showtime: { type: String, required: true },
     metadata: { type: Schema.Types.Mixed },
     discountApplied: { type: Number, default: 0 },
     offerCode: { type: String },
@@ -21,6 +23,8 @@ export interface IPendingPayment extends Document {
   user: IUser["_id"];
   seats: string[];
   totalPrice: number;
+  showtimeId: string;
+  showtime: string;
   metadata?: Record<string, unknown>;
   discountApplied?: number;
   offerCode?: string;

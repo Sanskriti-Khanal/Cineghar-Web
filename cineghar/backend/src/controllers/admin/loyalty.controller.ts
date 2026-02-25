@@ -202,7 +202,7 @@ export class AdminLoyaltyController {
       if (data.startDate) update.startDate = new Date(data.startDate);
       if (data.endDate) update.endDate = new Date(data.endDate);
       const rule = await LoyaltyRuleModel.findByIdAndUpdate(id, update, {
-        new: true,
+        returnDocument: "after",
       }).lean();
       if (!rule) {
         throw new HttpError(404, "Loyalty rule not found");

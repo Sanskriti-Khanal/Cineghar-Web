@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMyLoyaltyApi } from "@/lib/api/loyalty";
+import { getImageUrl } from "@/lib/utils";
 
 type NavLink = {
   href: string;
@@ -229,7 +230,7 @@ const Navbar = () => {
                     {user?.imageUrl ? (
                       // Show uploaded profile image
                       <img
-                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050"}${user.imageUrl}`}
+                        src={getImageUrl(user.imageUrl)}
                         alt={user?.name || user?.email || "Profile"}
                         className="w-full h-full object-cover"
                       />

@@ -95,7 +95,7 @@ export class AdminCinemaHallController {
         });
       }
       const hall = await CinemaHallModel.findByIdAndUpdate(id, parsed.data, {
-        new: true,
+        returnDocument: "after",
       }).lean();
       if (!hall) throw new HttpError(404, "Cinema hall not found");
       return res.status(200).json({
@@ -234,7 +234,7 @@ export class AdminShowtimeController {
       if (data.startTime) update.startTime = new Date(data.startTime);
       if (data.isActive !== undefined) update.isActive = data.isActive;
       const showtime = await ShowtimeModel.findByIdAndUpdate(id, update, {
-        new: true,
+        returnDocument: "after",
       })
         .populate("movie")
         .populate("hall")

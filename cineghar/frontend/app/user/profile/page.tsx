@@ -15,6 +15,7 @@ import DateInput from "@/app/_components/DateInput";
 import Button from "@/app/_components/Button";
 import Alert from "@/app/_components/Alert";
 import Link from "next/link";
+import { getImageUrl } from "@/lib/utils";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,6 +29,7 @@ export default function UserProfilePage() {
   const [profile, setProfile] = useState<AuthUser | null>(null);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -68,9 +70,14 @@ export default function UserProfilePage() {
     const fetchOrders = async () => {
       try {
         const res = await getMyOrdersApi({ limit: 20 });
-        if (res.success && Array.isArray(res.data)) setOrders(res.data);
-      } catch {
-        // non-blocking; profile is primary
+        if (res.success && Array.isArray(res.data)) {
+          setOrders(res.data);
+        } else {
+          setOrdersError(res.message ?? "Failed to load your orders.");
+        }
+      } catch (err) {
+        setOrdersError(err instanceof Error ? err.message : "Failed to load orders.");
+        console.error("[fetchOrders] error:", err);
       } finally {
         setOrdersLoading(false);
       }
@@ -136,7 +143,7 @@ export default function UserProfilePage() {
           {profile?.imageUrl && (
             <div className="mb-4 flex justify-center">
               <img
-                src={`${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050"}${profile.imageUrl}`}
+                src={getImageUrl(profile.imageUrl)}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover"
               />
@@ -197,8 +204,13 @@ export default function UserProfilePage() {
             <div className="flex justify-center py-8">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#8B0000] border-t-transparent" />
             </div>
+          ) : ordersError ? (
+            <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+              <p className="text-sm font-medium text-red-700">⚠️ Could not load orders: {ordersError}</p>
+              <p className="text-xs text-gray-400 mt-1">Check that you are logged in with the correct account and the backend is running at http://localhost:5050.</p>
+            </div>
           ) : orders.length === 0 ? (
-            <p className="text-sm text-gray-500 py-4">You haven’t placed any orders yet.</p>
+            <p className="text-sm text-gray-500 py-4">You haven&apos;t placed any orders yet.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">

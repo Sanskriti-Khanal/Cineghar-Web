@@ -60,7 +60,7 @@ export class UserRepository implements IUserRepository {
     updateData: Partial<IUser>
   ): Promise<IUser | null> {
     const updateUser = await UserModel.findByIdAndUpdate(userId, updateData, {
-      new: true,
+      returnDocument: "after",
     }).select("-password");
     return updateUser;
   }
@@ -75,7 +75,7 @@ export class UserRepository implements IUserRepository {
         password: hashedPassword,
         $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 },
       },
-      { new: true }
+      { returnDocument: "after" }
     ).select("-password");
     return user;
   }

@@ -1,0 +1,277 @@
+[00:00:02.365] Server  LOG     ✓ Ready in 2s
+[00:00:12.545] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:20.348] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:01:42.028] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:42.208] Browser WARN    Image with src "/images/newhero.png" is using quality "90" which is not configured in images.qualities [75]. Please update your config to [75, 90].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[00:01:42.208] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:08:13.297] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:08:13.591] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:11:16.568] Server  ERROR   ⨯ ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./components/ui/stacked-cards-interaction.tsx
+./app/auth/dashboard/page.tsx
+[00:11:16.933] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./components/ui/stacked-cards-interaction.tsx
+./app/auth/dashboard/page.tsx
+[00:11:16.933] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./components/ui/stacked-cards-interaction.tsx
+./app/auth/dashboard/page.tsx
+[00:11:28.994] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./components/ui/stacked-cards-interaction.tsx
+./app/auth/dashboard/page.tsx
+[00:11:29.303] Server  ERROR   ⨯ ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:11:29.933] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./components/ui/stacked-cards-interaction.tsx
+./app/auth/dashboard/page.tsx
+[00:11:29.934] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./components/ui/stacked-cards-interaction.tsx
+./app/auth/dashboard/page.tsx
+[00:11:57.194] Server  ERROR   ⨯ ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:11:59.934] Server  ERROR   ⨯ ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:12:02.720] Server  ERROR   ⨯ ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:12:04.953] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:12:05.404] Server  ERROR   ⨯ ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:12:05.933] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:12:25.941] Browser ERROR   ./lib/utils.ts
+Error:   x Expected unicode escape
+    ,-[/Users/sanskritikhanal/Desktop/Assignment/Cineghar-Web/cineghar/frontend/lib/utils.ts:10:1]
+  7 |   if (path.startsWith("http")) return path;
+  8 |   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+  9 |   // Remove duplicate slashes if any
+ 10 |   return \`\${baseUrl}\${path.startsWith("/") ? path : \`/\${path}\`}\`;
+    :          ^
+ 11 | }
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/utils.ts
+./app/auth/loyalty-points/page.tsx
+[00:20:33.105] Browser WARN    Image with src "/images/newhero.png" is using quality "90" which is not configured in images.qualities [75]. Please update your config to [75, 90].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[00:20:38.615] Browser WARN    Image with src "/images/seats/booked.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:20:44.554] Browser WARN    Image with src "/images/seats/selected.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:37:51.425] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:37:51.942] Browser WARN    Image with src "/images/newhero.png" is using quality "90" which is not configured in images.qualities [75]. Please update your config to [75, 90].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[00:40:10.396] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:40:12.486] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:40:12.694] Browser WARN    Image with src "/images/newhero.png" is using quality "90" which is not configured in images.qualities [75]. Please update your config to [75, 90].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[00:40:12.695] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:40:18.158] Browser WARN    Image with src "/images/seats/booked.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:40:24.101] Browser WARN    Image with src "/images/seats/selected.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:41:31.512] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:41:32.069] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:41:43.491] Server  LOG     ○ Compiling /admin/showtimes/[id]/edit ...
+[00:44:28.845] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:44:29.591] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:44:39.908] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:44:40.142] Browser WARN    Image with src "/images/newhero.png" is using quality "90" which is not configured in images.qualities [75]. Please update your config to [75, 90].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+[00:44:40.142] Browser WARN    Image with src "/images/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[00:53:06.379] Browser WARN    Image with src "/images/seats/booked.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.

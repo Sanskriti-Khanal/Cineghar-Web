@@ -114,7 +114,7 @@ export class AdminOfferController {
       if (data.startDate) update.startDate = new Date(data.startDate);
       if (data.endDate) update.endDate = new Date(data.endDate);
       const offer = await OfferModel.findByIdAndUpdate(id, update, {
-        new: true,
+        returnDocument: "after",
       }).lean();
       if (!offer) {
         throw new HttpError(404, "Offer not found");

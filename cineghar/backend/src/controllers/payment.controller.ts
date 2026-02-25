@@ -12,6 +12,7 @@ import { OrderModel } from "../models/order.model";
 import { UserModel } from "../models/user.model";
 import { LoyaltyTransactionModel } from "../models/loyalty-transaction.model";
 import { OfferModel } from "../models/offer.model";
+import { BookingModel } from "../models/booking.model";
 
 const POINTS_PER_SEAT = 5;
 /** 1 loyalty point = 1 NPR discount when redeeming */
@@ -30,6 +31,7 @@ interface InitiateKhaltiRequestBody {
   };
   offerCode?: string;
   loyaltyPointsToRedeem?: number;
+  source?: "web" | "mobile";
 }
 
 export class PaymentController {
@@ -64,6 +66,13 @@ export class PaymentController {
 
       const metadata = body.metadata || {};
       const seats = Array.isArray(metadata.seats) ? metadata.seats : [];
+      const showtimeId = typeof metadata.showtimeId === "string" ? metadata.showtimeId : undefined;
+      const showtime = typeof metadata.showtime === "string" ? metadata.showtime : undefined;
+
+      if (!showtimeId || !showtime) {
+        throw new HttpError(400, "showtimeId and showtime are required in metadata");
+      }
+
       const subtotalFromMeta = Number(metadata.total) ?? Number(metadata.ticketSubtotal) ?? subtotal;
 
       let totalPrice = subtotalFromMeta;
@@ -123,15 +132,27 @@ export class PaymentController {
           user: user._id,
           seats,
           totalPrice,
+          showtimeId,
+          showtime,
           metadata: body.metadata,
           discountApplied,
           offerCode: appliedOfferCode,
           loyaltyPointsToRedeem: appliedLoyaltyPoints,
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
       );
 
-      const returnUrl = `${FRONTEND_URL}/auth/payment/khalti/return?po=${encodeURIComponent(purchaseOrderId)}`;
+      const source = body.source || "web";
+
+      let returnUrl = `${FRONTEND_URL}/auth/payment/khalti/return?po=${encodeURIComponent(purchaseOrderId)}`;
+      if (source === "mobile") {
+        const host = req.get("host") || "localhost:5050";
+        // Normally Express behind a proxy might need trust proxy to get correct protocol, 
+        // but typically doing a relative fallback is enough, or just rely on req.protocol
+        const protocol = req.headers["x-forwarded-proto"] || req.protocol || "http";
+        const baseUrl = `${protocol}://${host}`;
+        returnUrl = `${baseUrl}/api/payment/khalti/mobile-return?po=${encodeURIComponent(purchaseOrderId)}`;
+      }
 
       const payload: Record<string, unknown> = {
         return_url: returnUrl,
@@ -315,6 +336,13 @@ export class PaymentController {
           movieId: (pending.metadata as any)?.movieId,
           status: "completed",
         }),
+        BookingModel.create({
+          showtime: pending.showtimeId,
+          user: user._id,
+          seats: pending.seats,
+          totalPrice: pending.totalPrice,
+          status: "confirmed",
+        }),
         PendingPaymentModel.deleteOne({ _id: pending._id }),
       ]);
 
@@ -365,6 +393,78 @@ export class PaymentController {
         message: error.message || "Internal Server Error",
       });
     }
+  }
+  async mobileReturnKhaltiPayment(req: Request, res: Response) {
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Status - Cineghar</title>
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f7f9fc;
+            color: #333;
+          }
+          .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+          }
+          .icon {
+            font-size: 64px;
+            color: #10b981;
+            margin-bottom: 1rem;
+          }
+          h2 {
+            margin-top: 0;
+            color: #111827;
+            font-size: 1.5rem;
+          }
+          p {
+            color: #4b5563;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+          }
+          .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+          }
+          .button:hover {
+            background-color: #2563eb;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="icon">✓</div>
+          <h2>Payment Reached</h2>
+          <p>Your payment process via Khalti is completed.</p>
+          <p><strong>Please close this browser window and return to the Cineghar app</strong> to confirm your booking and view your tickets.</p>
+          <a href="cineghar://" class="button">Return to App</a>
+        </div>
+      </body>
+      </html>
+    `;
+    return res.send(html);
   }
 }
 

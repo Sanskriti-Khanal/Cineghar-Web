@@ -10,7 +10,6 @@ export async function listActiveOffers(req: Request, res: Response) {
       isActive: true,
       startDate: { $lte: now },
       $or: [{ endDate: { $exists: false } }, { endDate: null }, { endDate: { $gte: now } }],
-      type: { $in: ["percentage_discount", "fixed_discount"] },
     })
       .select("name code description type discountPercent discountAmount minSpend")
       .sort({ createdAt: -1 })

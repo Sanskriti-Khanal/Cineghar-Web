@@ -23,5 +23,10 @@ router.post(
   paymentController.confirmPayment.bind(paymentController)
 );
 
+router.get(
+  "/khalti/mobile-return",
+  paymentController.mobileReturnKhaltiPayment.bind(paymentController)
+);
+
 export default router;
 

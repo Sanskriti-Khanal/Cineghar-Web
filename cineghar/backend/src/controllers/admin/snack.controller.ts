@@ -114,7 +114,7 @@ export class AdminSnackController {
       const item = await SnackItemModel.findByIdAndUpdate(
         id,
         { $set: update },
-        { new: true }
+        { returnDocument: "after" }
       ).lean();
       if (!item) {
         throw new HttpError(404, "Snack item not found");
@@ -236,7 +236,7 @@ export class AdminSnackController {
       const combo = await SnackComboModel.findByIdAndUpdate(
         id,
         { $set: update },
-        { new: true }
+        { returnDocument: "after" }
       ).lean();
       if (!combo) {
         throw new HttpError(404, "Snack combo not found");

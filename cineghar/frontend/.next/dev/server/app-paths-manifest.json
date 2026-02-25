@@ -1,0 +1,9 @@
+{
+  "/auth/dashboard/page": "app/auth/dashboard/page.js",
+  "/auth/movies/[id]/page": "app/auth/movies/[id]/page.js",
+  "/auth/movies/[id]/book/page": "app/auth/movies/[id]/book/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/showtimes/page": "app/admin/showtimes/page.js",
+  "/admin/showtimes/[id]/edit/page": "app/admin/showtimes/[id]/edit/page.js",
+  "/admin/snacks/page": "app/admin/snacks/page.js"
+}

@@ -42,6 +42,18 @@ export const API = {
     KHALTI_LOOKUP: "/api/payment/khalti/lookup",
     CONFIRM: "/api/payment/confirm",
   },
+  BOOKING: {
+    CITIES: "/api/booking/cities",
+    HALLS: "/api/booking/halls",
+    SHOWTIMES: "/api/booking/showtimes",
+    SEATS: (showtimeId: string) => `/api/booking/showtimes/${showtimeId}/seats`,
+    HOLDS: "/api/booking/holds",
+    CONFIRM: "/api/booking/confirm",
+  },
+  SNACKS: {
+    ITEMS: "/api/snacks/items",
+    COMBOS: "/api/snacks/combos",
+  },
   ORDERS: "/api/orders",
   MOVIES: "/api/movies",
   MOVIE_BY_ID: (id: string) => `/api/movies/${id}`,

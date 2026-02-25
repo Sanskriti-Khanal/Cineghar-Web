@@ -5,9 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getAdminUserByIdApi } from "@/lib/api/admin";
 import type { AuthUser } from "@/lib/api/auth";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+import { getImageUrl } from "@/lib/utils";
 
 export default function AdminUserDetailPage() {
   const params = useParams();
@@ -138,7 +136,7 @@ export default function AdminUserDetailPage() {
               <div className="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden text-4xl font-semibold text-gray-700">
                 {user.imageUrl ? (
                   <img
-                    src={`${API_BASE}${user.imageUrl}`}
+                    src={getImageUrl(user.imageUrl)}
                     alt={user.name || user.email}
                     className="h-full w-full object-cover"
                   />

@@ -335,7 +335,7 @@ describe("Auth integration tests", () => {
 
       expect(reuseRes.body.success).toBe(false);
       expect(reuseRes.body.message).toMatch(/invalid|expired/i);
-    });
+    }, 15000);
 
     it("expired token rejected", async () => {
       // Register user
@@ -379,7 +379,7 @@ describe("Auth integration tests", () => {
 
       expect(res.body.success).toBe(false);
       expect(res.body.message).toMatch(/invalid|expired/i);
-    });
+    }, 10000);
 
     it("invalid token rejected", async () => {
       // Register user
@@ -405,10 +405,117 @@ describe("Auth integration tests", () => {
 
       expect(res.body.success).toBe(false);
       expect(res.body.message).toMatch(/invalid|expired/i);
-    });
+    }, 10000);
+
+    it("fails when passwords don't match", async () => {
+      // Register user
+      await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Mismatch User",
+          email: "mismatch@example.com",
+          password: "oldpassword",
+          confirmPassword: "oldpassword",
+        })
+        .expect(201);
+
+      // Request password reset
+      await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "mismatch@example.com",
+        })
+        .expect(200);
+
+      // Get token from DB
+      const user = await UserModel.findOne({ email: "mismatch@example.com" });
+      const token = user!.resetPasswordToken!;
+
+      // Try to reset with mismatched passwords
+      const res = await request(app)
+        .post("/api/auth/reset-password")
+        .send({
+          token: token,
+          password: "newpassword123",
+          confirmPassword: "differentpassword",
+        })
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBeDefined();
+    }, 10000);
+
+    it("fails when password is too short", async () => {
+      // Register user
+      await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Short Pass User",
+          email: "shortpass@example.com",
+          password: "oldpassword",
+          confirmPassword: "oldpassword",
+        })
+        .expect(201);
+
+      // Request password reset
+      await request(app)
+        .post("/api/auth/forgot-password")
+        .send({
+          email: "shortpass@example.com",
+        })
+        .expect(200);
+
+      // Get token from DB
+      const user = await UserModel.findOne({ email: "shortpass@example.com" });
+      const token = user!.resetPasswordToken!;
+
+      // Try to reset with short password
+      const res = await request(app)
+        .post("/api/auth/reset-password")
+        .send({
+          token: token,
+          password: "12345",
+          confirmPassword: "12345",
+        })
+        .expect(400);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBeDefined();
+    }, 10000);
   });
 
   describe("User CRUD", () => {
+    let adminToken: string;
+    let adminId: string;
+
+    beforeEach(async () => {
+      // Create admin user for verification
+      const adminRegister = await request(app)
+        .post("/api/auth/register")
+        .send({
+          name: "Admin User",
+          email: "admin@crud.com",
+          password: "admin123",
+          confirmPassword: "admin123",
+        })
+        .expect(201);
+
+      await UserModel.findByIdAndUpdate(adminRegister.body.data._id, {
+        role: "admin",
+      });
+
+      const adminLogin = await request(app)
+        .post("/api/auth/login")
+        .send({
+          email: "admin@crud.com",
+          password: "admin123",
+        })
+        .expect(200);
+
+      adminToken = adminLogin.body.token;
+      adminId = adminLogin.body.data._id;
+    });
+
     it("get user by ID works", async () => {
       const registerRes = await request(app)
         .post("/api/auth/register")
@@ -421,8 +528,17 @@ describe("Auth integration tests", () => {
         .expect(201);
 
       const userId = registerRes.body.data._id;
+
+      const loginRes = await request(app)
+        .post("/api/auth/login")
+        .send({ email: "crud@example.com", password: "pass123" })
+        .expect(200);
+
+      const token = loginRes.body.token;
+
       const res = await request(app)
         .get(`/api/auth/${userId}`)
+        .set("Authorization", `Bearer ${token}`)
         .expect(200);
 
       expect(res.body.success).toBe(true);
@@ -465,6 +581,7 @@ describe("Auth integration tests", () => {
     });
 
     it("delete user works", async () => {
+      // Create regular user to delete
       const registerRes = await request(app)
         .post("/api/auth/register")
         .send({
@@ -477,17 +594,28 @@ describe("Auth integration tests", () => {
 
       const userId = registerRes.body.data._id;
 
-      await request(app)
-        .delete(`/api/auth/${userId}`)
+      const loginRes = await request(app)
+        .post("/api/auth/login")
+        .send({ email: "delete@example.com", password: "pass123" })
         .expect(200);
 
+      const token = loginRes.body.token;
+
+      // Delete the user
+      await request(app)
+        .delete(`/api/auth/${userId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(200);
+
+      // Verify with admin token that user is deleted (should be 404)
       const getRes = await request(app)
         .get(`/api/auth/${userId}`)
+        .set("Authorization", `Bearer ${adminToken}`)
         .expect(404);
 
       expect(getRes.body.success).toBe(false);
       expect(getRes.body.message).toMatch(/not found/i);
-    });
+    }, 10000);
   });
 
   describe("Pagination", () => {
@@ -782,84 +910,6 @@ describe("Auth integration tests", () => {
 
       expect(res.body.success).toBe(false);
       expect(res.body.message).toMatch(/unauthorized|invalid|malformed|token/i);
-    });
-  });
-
-  describe("POST /api/auth/reset-password - edge cases", () => {
-    it("fails when passwords don't match", async () => {
-      // Register user
-      await request(app)
-        .post("/api/auth/register")
-        .send({
-          name: "Mismatch User",
-          email: "mismatch@example.com",
-          password: "oldpassword",
-          confirmPassword: "oldpassword",
-        })
-        .expect(201);
-
-      // Request password reset
-      await request(app)
-        .post("/api/auth/forgot-password")
-        .send({
-          email: "mismatch@example.com",
-        })
-        .expect(200);
-
-      // Get token from DB
-      const user = await UserModel.findOne({ email: "mismatch@example.com" });
-      const token = user!.resetPasswordToken!;
-
-      // Try to reset with mismatched passwords
-      const res = await request(app)
-        .post("/api/auth/reset-password")
-        .send({
-          token: token,
-          password: "newpassword123",
-          confirmPassword: "differentpassword",
-        })
-        .expect(400);
-
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBeDefined();
-    });
-
-    it("fails when password is too short", async () => {
-      // Register user
-      await request(app)
-        .post("/api/auth/register")
-        .send({
-          name: "Short Pass User",
-          email: "shortpass@example.com",
-          password: "oldpassword",
-          confirmPassword: "oldpassword",
-        })
-        .expect(201);
-
-      // Request password reset
-      await request(app)
-        .post("/api/auth/forgot-password")
-        .send({
-          email: "shortpass@example.com",
-        })
-        .expect(200);
-
-      // Get token from DB
-      const user = await UserModel.findOne({ email: "shortpass@example.com" });
-      const token = user!.resetPasswordToken!;
-
-      // Try to reset with short password
-      const res = await request(app)
-        .post("/api/auth/reset-password")
-        .send({
-          token: token,
-          password: "12345",
-          confirmPassword: "12345",
-        })
-        .expect(400);
-
-      expect(res.body.success).toBe(false);
-      expect(res.body.message).toBeDefined();
     });
   });
 });

@@ -1,11 +1,81 @@
+ "use client";
+
 import ProtectedRoute from "@/app/_components/ProtectedRoute";
 import Navbar from "@/app/_components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import { Film, Star, Popcorn, TicketPercent, Crown, Gift } from "lucide-react";
 import DashboardMovieGrid from "./DashboardMovieGrid";
+import { useEffect, useState } from "react";
+import {
+  getMoviesApi,
+  getPosterUrl,
+  type CinegharMovie,
+} from "@/lib/api/publicMovies";
+import {
+  StackedCardsInteraction,
+  type StackedCardData,
+} from "@/components/ui/stacked-cards-interaction";
+import { ThreeDPhotoCarousel, type CarouselCard } from "@/components/ui/3d-carousel";
 
 export default function DashboardPage() {
+  const [featuredCards, setFeaturedCards] = useState<StackedCardData[]>([]);
+  const [carouselMovies, setCarouselMovies] = useState<CarouselCard[]>([]);
+  const [carouselLoading, setCarouselLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const res = await getMoviesApi({ page: 1, limit: 3 });
+        if (!cancelled && res.data?.length) {
+          const cards: StackedCardData[] = res.data.map((movie: CinegharMovie) => ({
+            image: getPosterUrl(movie.posterUrl) ?? "/images/newhero.png",
+            title: movie.title,
+            description: movie.description,
+          }));
+          setFeaturedCards(cards);
+        }
+      } catch {
+        // keep fallback UI
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setCarouselLoading(true);
+    getMoviesApi({ page: 1, limit: 7 })
+      .then((res) => {
+        if (!cancelled && res.data?.length) {
+          const cards: CarouselCard[] = res.data.map((movie: CinegharMovie) => ({
+            id: movie._id,
+            image: getPosterUrl(movie.posterUrl) ?? "/images/newhero.png",
+            title: movie.title,
+          }));
+          setCarouselMovies(cards);
+        }
+      })
+      .catch(() => {
+        // keep fallback UI
+      })
+      .finally(() => {
+        if (!cancelled) setCarouselLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const hasDynamicCards = featuredCards.length > 0;
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-[#050509] text-white">
@@ -82,77 +152,31 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Featured movie stack */}
+                {/* Featured Tonight - dynamic stacked cards from live movies */}
                 <div className="hidden lg:block">
                   <div className="relative w-full max-w-md ml-auto">
                     <div className="absolute -top-6 -left-10 w-40 h-40 rounded-full bg-[#8B0000]/40 blur-3xl" />
                     <div className="absolute -bottom-10 -right-12 w-52 h-52 rounded-full bg-[#F97373]/30 blur-3xl" />
 
-                    <div className="relative bg-black/70 border border-white/10 rounded-3xl p-5 shadow-[0_25px_60px_rgba(0,0,0,0.9)] backdrop-blur-md">
-                      <div className="flex items-center justify-between mb-4">
+                    <div className="relative bg-black/70 border border-white/10 rounded-3xl p-5 shadow-[0_25px_60px_rgba(0,0,0,0.9)] backdrop-blur-md flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-gray-300">
                           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 border border-white/10">
                             <Film size={14} /> Featured Tonight
                           </span>
                         </div>
                         <span className="text-[11px] text-gray-400">
-                          Ultra HD • Atmos
+                          Dynamic picks from CineGhar
                         </span>
                       </div>
 
-                      <div className="relative h-40 rounded-2xl overflow-hidden mb-4">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/20 to-transparent z-10" />
-                        <Image
-                          src="/images/newhero.png"
-                          alt="Featured movie"
-                          fill
-                          className="object-cover"
-                        />
-                        <div className="absolute bottom-3 left-3 z-20">
-                          <p className="text-sm font-semibold mb-1">
-                            The Dark Knight
-                          </p>
-                          <p className="text-[11px] text-gray-300">
-                            Action • Thriller • 2h 32m
-                          </p>
+                      {hasDynamicCards ? (
+                        <StackedCardsInteraction cards={featuredCards} />
+                      ) : (
+                        <div className="relative h-40 rounded-2xl overflow-hidden bg-gradient-to-tr from-black/70 via-black/20 to-transparent flex items-center justify-center text-xs text-gray-300">
+                          Loading featured movies…
                         </div>
-                        <div className="absolute top-3 right-3 z-20 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 text-xs">
-                          <Star size={14} className="text-yellow-300" />
-                          4.9
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 text-xs text-gray-300">
-                        <p className="text-[11px] uppercase tracking-[0.2em] text-gray-400">
-                          Up next
-                        </p>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-sm">Inception</p>
-                              <p className="text-[11px] text-gray-400">
-                                Sci‑Fi • Mystery
-                              </p>
-                            </div>
-                            <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[11px]">
-                              4.8 ★
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium text-sm">
-                                Interstellar
-                              </p>
-                              <p className="text-[11px] text-gray-400">
-                                Sci‑Fi • Drama
-                              </p>
-                            </div>
-                            <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[11px]">
-                              4.7 ★
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -162,11 +186,11 @@ export default function DashboardPage() {
 
           {/* Movies Section */}
           <section className="py-12 md:py-16 bg-gradient-to-b from-[#050509] via-[#0b0b11] to-[#050509]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between mb-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+              <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-semibold">
-                    Trending & New Releases
+                    Trending &amp; New Releases
                   </h2>
                   <p className="text-sm text-gray-400 mt-1">
                     Hand‑picked movies we think you&apos;ll love tonight.
@@ -174,6 +198,16 @@ export default function DashboardPage() {
                 </div>
               </div>
 
+              {/* 3D carousel for a cinematic overview */}
+              <div className="w-full">
+                {carouselLoading ? (
+                  <div className="h-[420px] bg-white/5 rounded-lg animate-pulse" />
+                ) : carouselMovies.length > 0 ? (
+                  <ThreeDPhotoCarousel cards={carouselMovies} />
+                ) : null}
+              </div>
+
+              {/* Existing grid of movies powered by backend */}
               <DashboardMovieGrid />
             </div>
           </section>

@@ -19,6 +19,7 @@ import { initiateKhaltiPaymentApi } from "@/lib/api/payment";
 import { getActiveOffersApi, type ActiveOffer } from "@/lib/api/offers";
 import { getRewardsApi, type Reward } from "@/lib/api/rewards";
 import { getMyLoyaltyApi } from "@/lib/api/loyalty";
+import { getShowtimesApi, type Showtime } from "@/lib/api/booking";
 import { getAuthTokenSync } from "@/lib/cookie";
 
 type City = "Kathmandu" | "Pokhara" | "Chitwan";
@@ -85,7 +86,7 @@ const HALLS: CinemaHall[] = [
   },
 ];
 
-const SHOWTIMES = ["10:00 AM", "1:30 PM", "4:30 PM", "7:30 PM", "10:00 PM"];
+// Removed hardcoded SHOWTIMES
 
 const ROWS = ["A", "B", "C", "D", "E", "F", "G"];
 const COLUMNS = 12;
@@ -118,7 +119,9 @@ export default function MovieBookingPage() {
   const [city, setCity] = useState<City | null>(null);
   const [hallId, setHallId] = useState<string | null>(null);
   const [selectedDateKey, setSelectedDateKey] = useState<"today" | "tomorrow" | null>(null);
-  const [showtime, setShowtime] = useState<string | null>(null);
+  const [availableShowtimes, setAvailableShowtimes] = useState<Showtime[]>([]);
+  const [loadingShowtimes, setLoadingShowtimes] = useState(false);
+  const [showtime, setShowtime] = useState<string | null>(null); // This is now showtime._id
   const [selectedSeats, setSelectedSeats] = useState<Set<string>>(new Set());
   const [heldSeats, setHeldSeats] = useState<Record<string, number>>({});
   const [bookedSeats, setBookedSeats] = useState<Set<string>>(
@@ -176,6 +179,23 @@ export default function MovieBookingPage() {
       .catch(() => {})
       .finally(() => setDiscountLoading(false));
   }, [step]);
+
+  useEffect(() => {
+    if (city && hallId && selectedDateKey) {
+      setLoadingShowtimes(true);
+      setShowtime(null); // Reset selected showtime when date/hall changes
+      getShowtimesApi({ movieId: id, hallId, date: selectedDateKey })
+        .then((res) => {
+          if (res.success && Array.isArray(res.data)) {
+            setAvailableShowtimes(res.data);
+          } else {
+            setAvailableShowtimes([]);
+          }
+        })
+        .catch(() => setAvailableShowtimes([]))
+        .finally(() => setLoadingShowtimes(false));
+    }
+  }, [city, hallId, selectedDateKey, id]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -347,6 +367,11 @@ export default function MovieBookingPage() {
       const purchaseOrderId = `BOOK-${id}-${Date.now()}`;
       const purchaseOrderName = `Tickets for ${movie?.title ?? "CineGhar"}`;
 
+      const selectedShowtimeObj = availableShowtimes.find((s) => s._id === showtime);
+      if (!selectedShowtimeObj) {
+        throw new Error("Invalid showtime selected");
+      }
+
       const metadata = {
         city,
         hallId: selectedHall.id,
@@ -354,7 +379,8 @@ export default function MovieBookingPage() {
         movieId: id,
         movieTitle: movie?.title,
         dateKey: selectedDateKey,
-        showtime,
+        showtimeId: selectedShowtimeObj._id,
+        showtime: selectedShowtimeObj.startTime,
         seats: heldSeatIds,
         ticketSubtotal,
         snacksSubtotal: snacksTotal,
@@ -688,28 +714,42 @@ export default function MovieBookingPage() {
                   </div>
                   <div className="mt-2">
                     <p className="text-[11px] text-gray-400 mb-2">Available showtimes</p>
-                    <div className="flex flex-wrap gap-2">
-                      {SHOWTIMES.map((time) => {
-                        const active = showtime === time;
-                        return (
-                          <button
-                            key={time}
-                            type="button"
-                            onClick={() => {
-                              setShowtime(time);
-                              setStep((prev) => (prev < 4 ? 4 : prev));
-                            }}
-                            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-                              active
-                                ? "bg-[#8B0000] text-white shadow-[0_10px_30px_rgba(0,0,0,0.9)]"
-                                : "bg-white/5 text-gray-200 border border-white/15 hover:bg-white/10"
-                            }`}
-                          >
-                            {time}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {loadingShowtimes ? (
+                      <div className="text-xs text-gray-500">Loading showtimes...</div>
+                    ) : availableShowtimes.length === 0 ? (
+                      <div className="text-xs text-gray-500">
+                        {step >= 3 && selectedDateKey 
+                          ? "No showtimes available for this date/hall." 
+                          : "Please select a date first."}
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {availableShowtimes.map((st) => {
+                          const active = showtime === st._id;
+                          const formattedTime = new Date(st.startTime).toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          });
+                          return (
+                            <button
+                              key={st._id}
+                              type="button"
+                              onClick={() => {
+                                setShowtime(st._id);
+                                setStep((prev) => (prev < 4 ? 4 : prev));
+                              }}
+                              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                                active
+                                  ? "bg-[#8B0000] text-white shadow-[0_10px_30px_rgba(0,0,0,0.9)]"
+                                  : "bg-white/5 text-gray-200 border border-white/15 hover:bg-white/10"
+                              }`}
+                            >
+                              {formattedTime}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </section>
 

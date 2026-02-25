@@ -100,7 +100,6 @@ export class UserService {
     return { token, user: userResponse };
   }
 
-  /** Generate secure reset token, save with expiry, and send reset link email; no-op if user not found. */
   async requestPasswordReset(email: string): Promise<void> {
     const user = await userRepository.getUserByEmail(email);
     if (!user) return;

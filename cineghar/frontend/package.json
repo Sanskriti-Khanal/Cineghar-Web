@@ -14,11 +14,16 @@
     "build:all": "npm run build && npm run build:backend",
     "start": "next start",
     "start:backend": "npm start --workspace backend",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "axios": "^1.13.2",
+    "framer-motion": "^12.34.5",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
@@ -29,7 +34,11 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.0.0",
     "@types/babel__core": "^7.20.5",
     "@types/bcryptjs": "^2.4.6",
     "@types/body-parser": "^1.19.6",
@@ -41,6 +50,8 @@
     "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.0.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

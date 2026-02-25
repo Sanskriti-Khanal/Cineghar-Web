@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   authorizedMiddleware,
   selfOrAdminMiddleware,
+  adminMiddleware,
 } from "../middlewares/authorized.middleware";
 import { uploads } from "../middlewares/upload.middleware";
 
@@ -22,8 +23,18 @@ router.put(
   authController.updateProfile
 );
 
-router.get("/:id", authController.getOneUser);
-router.get("/", authController.getAllUsers);
+router.get(
+  "/:id",
+  authorizedMiddleware,
+  selfOrAdminMiddleware,
+  authController.getOneUser
+);
+router.get(
+  "/",
+  authorizedMiddleware,
+  adminMiddleware,
+  authController.getAllUsers
+);
 router.put(
   "/:id",
   authorizedMiddleware,
@@ -31,7 +42,12 @@ router.put(
   uploads.single("image"),
   authController.updateUserById
 );
-router.delete("/:id", authController.deleteUser);
+router.delete(
+  "/:id",
+  authorizedMiddleware,
+  selfOrAdminMiddleware,
+  authController.deleteUser
+);
 
 export default router;
 

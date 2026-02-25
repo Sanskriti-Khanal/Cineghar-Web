@@ -4,9 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { getAdminUsersApi, deleteAdminUserApi } from "@/lib/api/admin";
 import type { AuthUser } from "@/lib/api/auth";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5050";
+import { getImageUrl } from "@/lib/utils";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
@@ -145,7 +143,7 @@ export default function AdminUsersPage() {
                       <div className="h-9 w-9 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden text-xs font-semibold text-gray-700">
                         {user.imageUrl ? (
                           <img
-                            src={`${API_BASE}${user.imageUrl}`}
+                            src={getImageUrl(user.imageUrl)}
                             alt={user.name || user.email}
                             className="h-full w-full object-cover"
                           />

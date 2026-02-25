@@ -53,8 +53,7 @@ export const adminMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    // req.user is added by authorizedMiddleware
-    // any function after authorizedMiddleware can use req.user
+   
     if (!req.user) {
       throw new HttpError(401, "Unauthorized no user info");
     }

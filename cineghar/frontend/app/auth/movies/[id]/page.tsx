@@ -202,7 +202,10 @@ export default function MovieDetailsPage() {
               </div>
 
               <div className="mt-8 flex gap-3">
-                <button className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white font-semibold hover:shadow-lg transition-shadow">
+                <button
+                  onClick={() => router.push(`/auth/movies/${id}/book`)}
+                  className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white font-semibold hover:shadow-lg transition-shadow"
+                >
                   Book Now
                 </button>
                 <button

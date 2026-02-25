@@ -213,9 +213,12 @@ export default function MoviesPage() {
                         </Link>
 
                         <div className="px-3 pb-3 flex items-center justify-between gap-2">
-                          <button className="flex-1 text-[11px] px-3 py-1.5 rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white font-semibold hover:shadow-[0_10px_30px_rgba(0,0,0,0.9)] transition-shadow">
+                          <Link
+                            href={`/auth/movies/${movie._id}/book`}
+                            className="flex-1 text-[11px] px-3 py-1.5 rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white font-semibold hover:shadow-[0_10px_30px_rgba(0,0,0,0.9)] transition-shadow text-center"
+                          >
                             Book Now
-                          </button>
+                          </Link>
                           <Link
                             href={`/auth/movies/${movie._id}`}
                             className="text-[11px] px-3 py-1.5 rounded-full border border-white/25 text-white/90 hover:bg-white/10 transition-colors"

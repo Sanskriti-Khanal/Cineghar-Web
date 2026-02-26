@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getAdminMovieByIdApi } from "@/lib/api/adminMovies";
+import { getPosterUrl } from "@/lib/api/publicMovies";
 import type { Movie } from "@/lib/api/adminMovies";
 
 export default function AdminMovieDetailPage() {
@@ -125,9 +126,9 @@ export default function AdminMovieDetailPage() {
           <div className="flex flex-col gap-6 sm:flex-row">
             <div className="flex-shrink-0">
               <div className="h-64 w-44 overflow-hidden rounded-lg bg-gray-200">
-                {movie.posterUrl ? (
+                {getPosterUrl(movie.posterUrl) ? (
                   <img
-                    src={movie.posterUrl}
+                    src={getPosterUrl(movie.posterUrl)!}
                     alt={movie.title}
                     className="h-full w-full object-cover"
                   />

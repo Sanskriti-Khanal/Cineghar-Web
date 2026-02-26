@@ -6,10 +6,30 @@ import z from "zod";
 
 const adminMovieService = new AdminMovieService();
 
+function buildMovieBody(body: Record<string, unknown>, file?: Express.Multer.File) {
+  const genreRaw = body.genre;
+  const genre = Array.isArray(genreRaw)
+    ? genreRaw
+    : typeof genreRaw === "string"
+      ? genreRaw.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : [];
+  const posterUrl = file ? `/uploads/${file.filename}` : (body.posterUrl as string | undefined);
+  return {
+    title: String(body.title ?? ""),
+    description: String(body.description ?? ""),
+    genre,
+    duration: Number(body.duration) || 0,
+    rating: Number(body.rating) ?? 0,
+    posterUrl: posterUrl || (body.posterUrl as string | undefined) || undefined,
+    releaseDate: body.releaseDate ? String(body.releaseDate) : undefined,
+  };
+}
+
 export class AdminMovieController {
   async create(req: Request, res: Response) {
     try {
-      const parsed = CreateMovieDto.safeParse(req.body);
+      const body = buildMovieBody(req.body as Record<string, unknown>, req.file);
+      const parsed = CreateMovieDto.safeParse(body);
       if (!parsed.success) {
         return res.status(400).json({
           success: false,
@@ -77,7 +97,8 @@ export class AdminMovieController {
   async update(req: Request, res: Response) {
     try {
       const id = String(req.params.id);
-      const parsed = UpdateMovieDto.safeParse(req.body);
+      const body = buildMovieBody(req.body as Record<string, unknown>, req.file);
+      const parsed = UpdateMovieDto.safeParse(body);
       if (!parsed.success) {
         return res.status(400).json({
           success: false,

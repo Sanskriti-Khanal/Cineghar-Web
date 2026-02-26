@@ -1,76 +1,63 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ProtectedRoute from "@/app/_components/ProtectedRoute";
 import Navbar from "@/app/_components/Navbar";
-import { moviesApi, getImageUrl, Movie, MoviesResponse } from "@/lib/api/movies";
+import { getMoviesApi, getPosterUrl, type CinegharMovie } from "@/lib/api/publicMovies";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Popcorn, TicketPercent, Crown, Gift } from "lucide-react";
+import { Star } from "lucide-react";
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 20;
 
 export default function MoviesPage() {
-  const [activeTab, setActiveTab] = useState<"popular" | "upcoming" | "search">("popular");
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState<CinegharMovie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(DEFAULT_PAGE);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [minRating, setMinRating] = useState<number | null>(null);
 
-  const fetchMovies = async (
-    type: "popular" | "upcoming" | "search",
-    pageNum: number = 1,
-  ) => {
-    try {
-      setLoading(true);
-      setError(null);
-      let response: MoviesResponse;
-
-      if (type === "search") {
-        if (!searchQuery.trim()) {
-          setMovies([]);
-          setLoading(false);
-          return;
-        }
-        response = await moviesApi.searchMovies(searchQuery, pageNum);
-      } else if (type === "popular") {
-        response = await moviesApi.getPopularMovies(pageNum);
-      } else {
-        response = await moviesApi.getUpcomingMovies(pageNum);
+  const fetchMovies = useCallback(
+    async (pageNum: number, search?: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await getMoviesApi({
+          page: pageNum,
+          limit: DEFAULT_LIMIT,
+          search: search?.trim() || undefined,
+        });
+        setMovies(res.data ?? []);
+        setTotalPages(res.totalPages ?? 1);
+        setTotal(res.total ?? 0);
+        setPage(res.page ?? pageNum);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch movies");
+        setMovies([]);
+      } finally {
+        setLoading(false);
       }
-
-      setMovies(response.results);
-      setTotalPages(response.total_pages);
-      setPage(response.page);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch movies");
-      setMovies([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    []
+  );
 
   useEffect(() => {
-    if (activeTab === "search" && !searchQuery.trim()) {
-      setMovies([]);
-      setLoading(false);
-      return;
-    }
-    fetchMovies(activeTab, 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
+    fetchMovies(1, searchQuery);
+  }, [searchQuery, fetchMovies]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setActiveTab("search");
-      fetchMovies("search", 1);
-    }
+    setSearchQuery(searchInput);
+    setPage(1);
   };
 
   const handlePageChange = (newPage: number) => {
-    fetchMovies(activeTab, newPage);
+    fetchMovies(newPage, searchQuery);
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -78,8 +65,10 @@ export default function MoviesPage() {
 
   const filteredMovies =
     minRating != null
-      ? movies.filter((movie) => movie.vote_average >= minRating)
+      ? movies.filter((m) => m.rating >= minRating)
       : movies;
+
+  const posterSrc = (movie: CinegharMovie) => getPosterUrl(movie.posterUrl);
 
   return (
     <ProtectedRoute>
@@ -105,15 +94,14 @@ export default function MoviesPage() {
                   </p>
                 </div>
 
-                {/* Search Bar */}
                 <form
                   onSubmit={handleSearch}
                   className="w-full max-w-md bg-black/40 rounded-2xl border border-white/10 p-2 flex items-center gap-2"
                 >
                   <input
                     type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                     placeholder="Search movies by name..."
                     className="flex-1 px-3 py-2 bg-transparent text-sm text-white placeholder-gray-400 focus:outline-none"
                   />
@@ -126,89 +114,19 @@ export default function MoviesPage() {
                 </form>
               </div>
 
-              {/* Tabs + Filters */}
-              <div className="mt-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      setActiveTab("popular");
-                      setSearchQuery("");
-                    }}
-                    className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
-                      activeTab === "popular"
-                        ? "bg-[#8B0000] text-white"
-                        : "bg-white/5 text-gray-200 hover:bg-white/10"
-                    }`}
-                  >
-                    Popular
-                  </button>
-                  <button
-                    onClick={() => {
-                      setActiveTab("upcoming");
-                      setSearchQuery("");
-                    }}
-                    className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors ${
-                      activeTab === "upcoming"
-                        ? "bg-[#8B0000] text-white"
-                        : "bg-white/5 text-gray-200 hover:bg-white/10"
-                    }`}
-                  >
-                    Coming Soon
-                  </button>
-                </div>
-
-                {/* Filters / Sorting */}
-                <div className="flex flex-wrap gap-3 text-xs sm:text-sm">
-                  <select
-                    className="bg-black/40 border border-white/20 rounded-full px-3 py-1.5 text-gray-200 focus:outline-none"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>
-                      Genre
-                    </option>
-                    <option>All</option>
-                    <option>Action</option>
-                    <option>Drama</option>
-                    <option>Romance</option>
-                    <option>Sci‑Fi</option>
-                  </select>
-                  <select
-                    className="bg-black/40 border border-white/20 rounded-full px-3 py-1.5 text-gray-200 focus:outline-none"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>
-                      Language
-                    </option>
-                    <option>All</option>
-                    <option>English</option>
-                    <option>Nepali</option>
-                    <option>Hindi</option>
-                  </select>
-                  <select
-                    className="bg-black/40 border border-white/20 rounded-full px-3 py-1.5 text-gray-200 focus:outline-none"
-                    value={minRating ?? ""}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setMinRating(v ? Number(v) : null);
-                    }}
-                  >
-                    <option value="">All ratings</option>
-                    <option value="7">7.0+</option>
-                    <option value="8">8.0+</option>
-                  </select>
-                  <select
-                    className="bg-black/40 border border-white/20 rounded-full px-3 py-1.5 text-gray-200 focus:outline-none"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>
-                      Showtime
-                    </option>
-                    <option>All</option>
-                    <option>Matinee</option>
-                    <option>Evening</option>
-                    <option>Late Night</option>
-                  </select>
-                </div>
+              <div className="mt-6 flex flex-wrap gap-3 text-xs sm:text-sm">
+                <select
+                  className="bg-black/40 border border-white/20 rounded-full px-3 py-1.5 text-gray-200 focus:outline-none"
+                  value={minRating ?? ""}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setMinRating(v ? Number(v) : null);
+                  }}
+                >
+                  <option value="">All ratings</option>
+                  <option value="7">7.0+</option>
+                  <option value="8">8.0+</option>
+                </select>
               </div>
             </div>
           </section>
@@ -241,21 +159,22 @@ export default function MoviesPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                     {filteredMovies.map((movie) => (
                       <div
-                        key={movie.id}
+                        key={movie._id}
                         className="group rounded-2xl overflow-hidden bg-white/5 border border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.85)] hover:border-[#8B0000]/70 hover:-translate-y-1 transition-all duration-200 flex flex-col"
                       >
                         <Link
-                          href={`/auth/movies/${movie.id}`}
+                          href={`/auth/movies/${movie._id}`}
                           className="flex-1 flex flex-col"
                         >
                           <div className="relative aspect-[2/3] bg-black">
-                            {getImageUrl(movie.poster_path) ? (
+                            {posterSrc(movie) ? (
                               <Image
-                                src={getImageUrl(movie.poster_path)!}
+                                src={posterSrc(movie)!}
                                 alt={movie.title}
                                 fill
                                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                                 sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                                unoptimized
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-500">
@@ -266,7 +185,8 @@ export default function MoviesPage() {
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
                             <div className="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/70 text-[10px]">
-                              <span>⭐ {movie.vote_average.toFixed(1)}</span>
+                              <Star size={12} className="text-yellow-300" />
+                              {movie.rating.toFixed(1)}
                             </div>
                           </div>
 
@@ -275,38 +195,19 @@ export default function MoviesPage() {
                               {movie.title}
                             </h3>
                             <p className="text-[11px] text-gray-300">
-                              Feature film • 2h 10m
+                              {movie.genre?.length
+                                ? movie.genre.join(" • ")
+                                : "Feature film"}{" "}
+                              • {movie.duration} min
                             </p>
                             <p className="text-[11px] text-gray-400">
-                              {movie.theater_release_date
-                                ? new Date(
-                                    movie.theater_release_date,
-                                  ).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                  })
-                                : movie.release_date
-                                ? new Date(
-                                    movie.release_date,
-                                  ).getFullYear()
+                              {movie.releaseDate
+                                ? new Date(movie.releaseDate).toLocaleDateString(
+                                    "en-US",
+                                    { month: "short", day: "numeric", year: "numeric" }
+                                  )
                                 : "Coming soon"}
                             </p>
-                            {movie.release_status && (
-                              <span
-                                className={`inline-flex items-center mt-1 text-[10px] px-2 py-0.5 rounded-full ${
-                                  movie.theater_available
-                                    ? "bg-green-500/20 text-green-200"
-                                    : movie.release_status === "TBA"
-                                    ? "bg-gray-500/20 text-gray-200"
-                                    : "bg-yellow-500/20 text-yellow-100"
-                                }`}
-                              >
-                                {movie.theater_available
-                                  ? "In Theaters"
-                                  : movie.release_status}
-                              </span>
-                            )}
                           </div>
                         </Link>
 
@@ -315,7 +216,7 @@ export default function MoviesPage() {
                             Book Now
                           </button>
                           <Link
-                            href={`/auth/movies/${movie.id}`}
+                            href={`/auth/movies/${movie._id}`}
                             className="text-[11px] px-3 py-1.5 rounded-full border border-white/25 text-white/90 hover:bg-white/10 transition-colors"
                           >
                             View Details
@@ -325,7 +226,6 @@ export default function MoviesPage() {
                     ))}
                   </div>
 
-                  {/* Pagination */}
                   {totalPages > 1 && (
                     <div className="flex justify-center items-center gap-3 mt-10 text-sm">
                       <button
@@ -337,10 +237,11 @@ export default function MoviesPage() {
                       </button>
                       <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">
                         Page {page} of {totalPages}
+                        {total > 0 && ` (${total} total)`}
                       </span>
                       <button
                         onClick={() => handlePageChange(page + 1)}
-                        disabled={page === totalPages}
+                        disabled={page >= totalPages}
                         className="px-4 py-2 rounded-full bg-white/5 border border-white/15 text-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition-colors"
                       >
                         Next
@@ -369,15 +270,13 @@ export default function MoviesPage() {
                   <div className="rounded-2xl bg-white/5 border border-white/10 p-3">
                     <p className="font-semibold mb-1">2x Weekday Points</p>
                     <p className="text-gray-300">
-                      Book Monday–Thursday shows and earn double loyalty
-                      points.
+                      Book Monday–Thursday shows and earn double loyalty points.
                     </p>
                   </div>
                   <div className="rounded-2xl bg-white/5 border border-white/10 p-3">
                     <p className="font-semibold mb-1">Snack Combos</p>
                     <p className="text-gray-300">
-                      Redeem points for popcorn & drink bundles at member
-                      rates.
+                      Redeem points for popcorn & drink bundles at member rates.
                     </p>
                   </div>
                   <div className="rounded-2xl bg-white/5 border border-white/10 p-3">
@@ -392,7 +291,6 @@ export default function MoviesPage() {
             </div>
           </section>
 
-          {/* Footer (dashboard-style) */}
           <footer className="border-t border-white/10 bg-black/95 text-white">
             <div className="max-w-7xl mx-auto px-5 md:px-8 py-8">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
@@ -409,18 +307,14 @@ export default function MoviesPage() {
                     <p>+977‑1‑2345678</p>
                   </div>
                   <div>
-                    <p className="font-semibold mb-2 text-white">
-                      Quick Navigation
-                    </p>
+                    <p className="font-semibold mb-2 text-white">Quick Navigation</p>
                     <p>Home</p>
                     <p>Movies</p>
                     <p>Loyalty Points</p>
                     <p>Sales & Offers</p>
                   </div>
                   <div>
-                    <p className="font-semibold mb-2 text-white">
-                      Follow Us
-                    </p>
+                    <p className="font-semibold mb-2 text-white">Follow Us</p>
                     <p>Facebook</p>
                     <p>Instagram</p>
                     <p>Twitter / X</p>
@@ -437,4 +331,3 @@ export default function MoviesPage() {
     </ProtectedRoute>
   );
 }
-

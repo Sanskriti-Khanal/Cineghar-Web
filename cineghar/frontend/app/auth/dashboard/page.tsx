@@ -1,7 +1,9 @@
 import ProtectedRoute from "@/app/_components/ProtectedRoute";
 import Navbar from "@/app/_components/Navbar";
 import Image from "next/image";
+import Link from "next/link";
 import { Film, Star, Popcorn, TicketPercent, Crown, Gift } from "lucide-react";
+import DashboardMovieGrid from "./DashboardMovieGrid";
 
 export default function DashboardPage() {
   return (
@@ -45,9 +47,12 @@ export default function DashboardPage() {
                   </p>
 
                   <div className="flex flex-wrap gap-4">
-                    <button className="px-7 py-3 rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white text-sm font-semibold shadow-[0_18px_45px_rgba(0,0,0,0.7)] hover:shadow-[0_22px_55px_rgba(0,0,0,0.9)] hover:scale-[1.02] transition-all">
+                    <Link
+                      href="/auth/movies"
+                      className="px-7 py-3 rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white text-sm font-semibold shadow-[0_18px_45px_rgba(0,0,0,0.7)] hover:shadow-[0_22px_55px_rgba(0,0,0,0.9)] hover:scale-[1.02] transition-all"
+                    >
                       Browse Movies
-                    </button>
+                    </Link>
                     <button className="px-7 py-3 rounded-full border border-white/30 text-sm font-semibold text-white/90 bg-white/5 hover:bg-white/10 transition-colors">
                       View Loyalty Points
                     </button>
@@ -169,61 +174,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  {
-                    title: "The Dark Knight",
-                    meta: "Action • Thriller",
-                    rating: "4.9",
-                  },
-                  {
-                    title: "Inception",
-                    meta: "Sci‑Fi • Mystery",
-                    rating: "4.8",
-                  },
-                  {
-                    title: "Dune: Part Two",
-                    meta: "Sci‑Fi • Adventure",
-                    rating: "4.7",
-                  },
-                  {
-                    title: "La La Land",
-                    meta: "Romance • Musical",
-                    rating: "4.6",
-                  },
-                ].map((movie) => (
-                  <div
-                    key={movie.title}
-                    className="group rounded-2xl overflow-hidden bg-white/5 border border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.75)] hover:translate-y-[-2px] hover:border-[#8B0000]/70 transition-all duration-200"
-                  >
-                    <div className="relative h-40 bg-gradient-to-br from-[#111827] to-[#0b0b11]">
-                      <div className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity">
-                        <div className="w-full h-full bg-gradient-to-tr from-[#8B0000] via-[#1f2937] to-[#111827]" />
-                      </div>
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-semibold">{movie.title}</p>
-                          <p className="text-[11px] text-gray-200">
-                            {movie.meta}
-                          </p>
-                        </div>
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 text-[11px]">
-                          <Star size={14} className="text-yellow-300" />
-                          {movie.rating}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-4 flex items-center justify-between">
-                      <p className="text-xs text-gray-300">
-                        Premium • Dolby Atmos
-                      </p>
-                      <button className="text-[11px] px-3 py-1 rounded-full border border-white/20 text-white/90 hover:bg-white/10 transition-colors">
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <DashboardMovieGrid />
             </div>
           </section>
 

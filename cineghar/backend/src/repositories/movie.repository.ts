@@ -16,10 +16,17 @@ export class MovieRepository {
     return MovieModel.findById(id).lean();
   }
 
-  async findPaginated(skip: number, limit: number): Promise<PaginatedMoviesResult> {
+  async findPaginated(
+    skip: number,
+    limit: number,
+    search?: string
+  ): Promise<PaginatedMoviesResult> {
+    const filter = search?.trim()
+      ? { title: { $regex: search.trim(), $options: "i" } }
+      : {};
     const [movies, total] = await Promise.all([
-      MovieModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      MovieModel.countDocuments(),
+      MovieModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      MovieModel.countDocuments(filter),
     ]);
     return { movies: movies as IMovie[], total };
   }

@@ -14,5 +14,7 @@ export const API = {
     MOVIES: "/api/admin/movies",
     MOVIE_BY_ID: (id: string) => `/api/admin/movies/${id}`,
   },
+  MOVIES: "/api/movies",
+  MOVIE_BY_ID: (id: string) => `/api/movies/${id}`,
 } as const;
 

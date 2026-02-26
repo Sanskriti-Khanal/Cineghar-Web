@@ -50,37 +50,18 @@ export const getAdminMovieByIdApi = async (id: string) => {
   return data;
 };
 
-export const createAdminMovieApi = async (body: {
-  title: string;
-  description: string;
-  genre?: string[];
-  duration: number;
-  rating: number;
-  posterUrl?: string;
-  releaseDate?: string;
-}) => {
+export const createAdminMovieApi = async (formData: FormData) => {
   const { data } = await axios.post<ApiResponse<Movie>>(
     API.ADMIN.MOVIES,
-    body
+    formData
   );
   return data;
 };
 
-export const updateAdminMovieApi = async (
-  id: string,
-  body: Partial<{
-    title: string;
-    description: string;
-    genre: string[];
-    duration: number;
-    rating: number;
-    posterUrl: string;
-    releaseDate: string;
-  }>
-) => {
+export const updateAdminMovieApi = async (id: string, formData: FormData) => {
   const { data } = await axios.put<ApiResponse<Movie>>(
     API.ADMIN.MOVIE_BY_ID(id),
-    body
+    formData
   );
   return data;
 };

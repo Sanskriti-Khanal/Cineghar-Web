@@ -6,7 +6,7 @@ export const CreateMovieDto = z.object({
   genre: z.array(z.string()).default([]),
   duration: z.coerce.number().int().min(1, "Duration must be at least 1 minute"),
   rating: z.coerce.number().min(0).max(10),
-  posterUrl: z.string().url().optional().or(z.literal("")),
+  posterUrl: z.union([z.string().url(), z.string().startsWith("/")]).optional().or(z.literal("")),
   releaseDate: z.string().optional(),
 });
 
@@ -18,7 +18,7 @@ export const UpdateMovieDto = z.object({
   genre: z.array(z.string()).optional(),
   duration: z.coerce.number().int().min(1).optional(),
   rating: z.coerce.number().min(0).max(10).optional(),
-  posterUrl: z.string().url().optional().or(z.literal("")),
+  posterUrl: z.union([z.string().url(), z.string().startsWith("/")]).optional().or(z.literal("")),
   releaseDate: z.string().optional(),
 });
 

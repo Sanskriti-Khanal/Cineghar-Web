@@ -4,6 +4,7 @@ import {
   authorizedMiddleware,
   adminMiddleware,
 } from "../../middlewares/authorized.middleware";
+import { uploads } from "../../middlewares/upload.middleware";
 
 const router = Router();
 const adminMovieController = new AdminMovieController();
@@ -12,6 +13,7 @@ router.post(
   "/",
   authorizedMiddleware,
   adminMiddleware,
+  uploads.single("poster"),
   adminMovieController.create.bind(adminMovieController)
 );
 
@@ -33,6 +35,7 @@ router.put(
   "/:id",
   authorizedMiddleware,
   adminMiddleware,
+  uploads.single("poster"),
   adminMovieController.update.bind(adminMovieController)
 );
 

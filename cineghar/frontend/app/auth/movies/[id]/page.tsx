@@ -4,47 +4,52 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ProtectedRoute from "@/app/_components/ProtectedRoute";
 import Navbar from "@/app/_components/Navbar";
-import { moviesApi, getImageUrl, MovieDetails } from "@/lib/api/movies";
+import { getMovieByIdApi, getPosterUrl } from "@/lib/api/publicMovies";
+import type { CinegharMovie } from "@/lib/api/publicMovies";
 import Image from "next/image";
 
 export default function MovieDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const movieId = parseInt(params.id as string);
-  const [movie, setMovie] = useState<MovieDetails | null>(null);
+  const id = params.id as string;
+  const [movie, setMovie] = useState<CinegharMovie | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isNaN(movieId)) {
+    if (!id) {
       setError("Invalid movie ID");
       setLoading(false);
       return;
     }
 
-    const fetchMovieDetails = async () => {
+    const fetchMovie = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await moviesApi.getMovieDetails(movieId);
-        setMovie(data);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch movie details");
+        const res = await getMovieByIdApi(id);
+        if (res.success && res.data) {
+          setMovie(res.data);
+        } else {
+          setError(res.message || "Movie not found");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch movie");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMovieDetails();
-  }, [movieId]);
+    fetchMovie();
+  }, [id]);
 
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#050509] text-white">
           <Navbar />
           <div className="flex justify-center items-center min-h-[calc(100vh-80px)]">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B0000]" />
           </div>
         </div>
       </ProtectedRoute>
@@ -54,10 +59,10 @@ export default function MovieDetailsPage() {
   if (error || !movie) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#050509] text-white">
           <Navbar />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-red-500/10 border border-red-500/40 text-red-200 px-4 py-3 rounded-lg">
               {error || "Movie not found"}
             </div>
             <button
@@ -72,142 +77,135 @@ export default function MovieDetailsPage() {
     );
   }
 
+  const posterSrc = getPosterUrl(movie.posterUrl);
+
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#050509] text-white">
         <Navbar />
-        
-        {/* Hero Section with Backdrop */}
-        <div className="relative h-[60vh] min-h-[400px]">
-          {getImageUrl(movie.backdrop_path, "w1280") ? (
-            <Image
-              src={getImageUrl(movie.backdrop_path, "w1280")!}
-              alt={movie.title}
-              fill
-              className="object-cover"
-              priority
-            />
+
+        {/* Hero with poster as background */}
+        <div className="relative min-h-[50vh] pt-20">
+          {posterSrc ? (
+            <>
+              <Image
+                src={posterSrc}
+                alt={movie.title}
+                fill
+                className="object-cover"
+                priority
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black" />
+            </>
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900" />
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black/90" />
-          
-          <div className="relative z-10 h-full flex items-end">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
-              <button
-                onClick={() => router.back()}
-                className="mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg hover:bg-white/20 transition-colors"
-              >
-                ← Back
-              </button>
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">
-                {movie.title}
-              </h1>
-              <div className="flex flex-wrap gap-4 text-white/90">
-                <span>⭐ {movie.vote_average.toFixed(1)}</span>
-                <span>•</span>
-                <span>{new Date(movie.release_date).getFullYear()}</span>
-                {movie.runtime && (
-                  <>
-                    <span>•</span>
-                    <span>{movie.runtime} min</span>
-                  </>
-                )}
-              </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-8">
+            <button
+              onClick={() => router.back()}
+              className="mb-6 px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-lg hover:bg-white/20 transition-colors"
+            >
+              ← Back
+            </button>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4">
+              {movie.title}
+            </h1>
+            <div className="flex flex-wrap gap-4 text-white/90">
+              <span>⭐ {movie.rating.toFixed(1)}</span>
+              <span>•</span>
+              <span>{movie.duration} min</span>
+              {movie.releaseDate && (
+                <>
+                  <span>•</span>
+                  <span>{new Date(movie.releaseDate).getFullYear()}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Movie Details */}
+        {/* Details */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Poster */}
             <div className="md:col-span-1">
-              <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-gray-200">
-                {getImageUrl(movie.poster_path) ? (
+              <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-white/5 border border-white/10">
+                {posterSrc ? (
                   <Image
-                    src={getImageUrl(movie.poster_path)!}
+                    src={posterSrc}
                     alt={movie.title}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 33vw"
+                    unoptimized
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-300 to-gray-400">
-                    <div className="text-center p-4">
-                      <svg className="w-16 h-16 mx-auto text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
-                      </svg>
-                      <p className="text-sm text-gray-600 font-medium">No Image Available</p>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                    <div className="text-center p-4 text-gray-400">
+                      No poster
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Details */}
             <div className="md:col-span-2">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Overview</h2>
-              <p className="text-gray-600 mb-6 leading-relaxed">{movie.overview}</p>
+              <h2 className="text-2xl font-bold text-white mb-4">Overview</h2>
+              <p className="text-gray-300 mb-6 leading-relaxed whitespace-pre-wrap">
+                {movie.description}
+              </p>
 
-              {movie.genres && movie.genres.length > 0 && (
+              {movie.genre?.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Genres</h3>
+                  <h3 className="text-lg font-semibold text-white mb-2">Genres</h3>
                   <div className="flex flex-wrap gap-2">
-                    {movie.genres.map((genre) => (
+                    {movie.genre.map((g) => (
                       <span
-                        key={genre.id}
-                        className="px-3 py-1 bg-[#8B0000]/10 text-[#8B0000] rounded-full text-sm"
+                        key={g}
+                        className="px-3 py-1 bg-[#8B0000]/30 text-red-200 rounded-full text-sm border border-[#8B0000]/50"
                       >
-                        {genre.name}
+                        {g}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                {movie.status && (
+              <div className="grid sm:grid-cols-2 gap-4 text-gray-300">
+                <div>
+                  <h4 className="text-sm font-semibold text-white mb-1">Duration</h4>
+                  <p>{movie.duration} min</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-white mb-1">Rating</h4>
+                  <p>{movie.rating}/10</p>
+                </div>
+                {movie.releaseDate && (
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Status</h4>
-                    <p className="text-gray-600">{movie.status}</p>
-                  </div>
-                )}
-                {movie.budget > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Budget</h4>
-                    <p className="text-gray-600">${movie.budget.toLocaleString()}</p>
-                  </div>
-                )}
-                {movie.revenue > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Revenue</h4>
-                    <p className="text-gray-600">${movie.revenue.toLocaleString()}</p>
-                  </div>
-                )}
-                {movie.vote_count > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-700 mb-1">Votes</h4>
-                    <p className="text-gray-600">{movie.vote_count.toLocaleString()}</p>
+                    <h4 className="text-sm font-semibold text-white mb-1">Release</h4>
+                    <p>
+                      {new Date(movie.releaseDate).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
                   </div>
                 )}
               </div>
 
-              {movie.production_companies && movie.production_companies.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Production Companies</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {movie.production_companies.map((company) => (
-                      <span
-                        key={company.id}
-                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-sm"
-                      >
-                        {company.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="mt-8 flex gap-3">
+                <button className="px-6 py-3 rounded-lg bg-gradient-to-r from-[#8B0000] to-[#A00000] text-white font-semibold hover:shadow-lg transition-shadow">
+                  Book Now
+                </button>
+                <button
+                  onClick={() => router.back()}
+                  className="px-6 py-3 rounded-lg border border-white/30 text-white/90 hover:bg-white/10 transition-colors"
+                >
+                  Back to Movies
+                </button>
+              </div>
             </div>
           </div>
         </div>

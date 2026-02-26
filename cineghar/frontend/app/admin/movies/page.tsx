@@ -6,6 +6,7 @@ import {
   getAdminMoviesApi,
   deleteAdminMovieApi,
 } from "@/lib/api/adminMovies";
+import { getPosterUrl } from "@/lib/api/publicMovies";
 import type { Movie } from "@/lib/api/adminMovies";
 
 const DEFAULT_PAGE = 1;
@@ -139,9 +140,9 @@ export default function AdminMoviesPage() {
                 <tr key={movie._id} className="hover:bg-gray-50">
                   <td className="whitespace-nowrap px-6 py-4">
                     <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-gray-200">
-                      {movie.posterUrl ? (
+                      {getPosterUrl(movie.posterUrl) ? (
                         <img
-                          src={movie.posterUrl}
+                          src={getPosterUrl(movie.posterUrl)!}
                           alt={movie.title}
                           className="h-full w-full object-cover"
                         />

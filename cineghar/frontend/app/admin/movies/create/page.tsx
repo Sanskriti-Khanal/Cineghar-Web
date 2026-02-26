@@ -16,7 +16,7 @@ const createMovieSchema = z.object({
   genre: z.string().optional(),
   duration: z.coerce.number().int().min(1, "Duration must be at least 1 minute"),
   rating: z.coerce.number().min(0).max(10),
-  posterUrl: z.string().url().optional().or(z.literal("")),
+  posterUrl: z.union([z.string().url(), z.literal("")]).optional(),
   releaseDate: z.string().optional(),
 });
 
@@ -31,25 +31,24 @@ export default function AdminCreateMoviePage() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<CreateMovieFormInputs>({
-    resolver: zodResolver(createMovieSchema),
+    resolver: zodResolver(createMovieSchema) as import("react-hook-form").Resolver<CreateMovieFormInputs>,
   });
 
   const onSubmit = async (data: CreateMovieFormInputs) => {
     setError(null);
     setSuccess(null);
     try {
-      const genreArray = data.genre
-        ? data.genre.split(",").map((g) => g.trim()).filter(Boolean)
-        : [];
-      await createAdminMovieApi({
-        title: data.title,
-        description: data.description,
-        genre: genreArray,
-        duration: data.duration,
-        rating: data.rating,
-        posterUrl: data.posterUrl || undefined,
-        releaseDate: data.releaseDate || undefined,
-      });
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      if (data.genre) formData.append("genre", data.genre);
+      formData.append("duration", String(data.duration));
+      formData.append("rating", String(data.rating));
+      if (data.releaseDate) formData.append("releaseDate", data.releaseDate);
+      if (data.posterUrl) formData.append("posterUrl", data.posterUrl);
+      const fileInput = document.getElementById("movie-poster") as HTMLInputElement;
+      if (fileInput?.files?.[0]) formData.append("poster", fileInput.files[0]);
+      await createAdminMovieApi(formData);
       setSuccess("Movie created successfully.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create movie");
@@ -128,16 +127,39 @@ export default function AdminCreateMoviePage() {
             error={errors.duration}
             {...register("duration")}
           />
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-900">
+              Rating (0–10)
+            </label>
+            <input
+              type="number"
+              step={0.1}
+              placeholder="7.5"
+              className={`block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-[#8B0000] focus:outline-none focus:ring-1 focus:ring-[#8B0000] ${
+                errors.rating ? "border-red-500" : ""
+              }`}
+              {...register("rating")}
+            />
+            {errors.rating && (
+              <p className="mt-1 text-sm text-red-600">{errors.rating.message}</p>
+            )}
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-900">
+              Poster image (optional)
+            </label>
+            <input
+              id="movie-poster"
+              type="file"
+              accept="image/*"
+              className="block w-full text-sm text-gray-900 file:mr-4 file:rounded file:border-0 file:bg-[#8B0000] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-[#6B0000]"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Upload an image or use a URL below.
+            </p>
+          </div>
           <FormInput
-            label="Rating (0–10)"
-            type="number"
-            step={0.1}
-            placeholder="7.5"
-            error={errors.rating}
-            {...register("rating")}
-          />
-          <FormInput
-            label="Poster URL (optional)"
+            label="Poster URL (optional, if not uploading)"
             type="url"
             placeholder="https://..."
             error={errors.posterUrl}

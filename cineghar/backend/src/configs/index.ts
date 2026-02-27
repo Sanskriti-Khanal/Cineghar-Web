@@ -25,6 +25,13 @@ export const MAIL_FROM: string =
 export const FRONTEND_URL: string =
   process.env.FRONTEND_URL || "http://localhost:3000";
 
+// Khalti ePayment
+export const KHALTI_SECRET_KEY: string = process.env.KHALTI_SECRET_KEY || "";
+export const KHALTI_BASE_URL: string =
+  process.env.KHALTI_BASE_URL || "https://dev.khalti.com/api/v2";
+export const KHALTI_WEBSITE_URL: string =
+  process.env.KHALTI_WEBSITE_URL || FRONTEND_URL;
+
 // TMDB API Configuration
 export const TMDB_API_KEY: string = process.env.TMDB_API_KEY || "";
 export const TMDB_ACCESS_TOKEN: string = process.env.TMDB_ACCESS_TOKEN || "";

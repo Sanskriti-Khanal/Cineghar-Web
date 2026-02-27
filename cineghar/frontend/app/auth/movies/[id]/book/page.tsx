@@ -15,6 +15,7 @@ import {
   SNACK_CATEGORY_TABS,
   type SnackCategory,
 } from "./snack-data";
+import { initiateKhaltiPaymentApi } from "@/lib/api/payment";
 
 type City = "Kathmandu" | "Pokhara" | "Chitwan";
 
@@ -122,6 +123,7 @@ export default function MovieBookingPage() {
   const [now, setNow] = useState(() => Date.now());
   const [snackCart, setSnackCart] = useState<Record<string, number>>({});
   const [snackTab, setSnackTab] = useState<SnackCategory | "combos">("veg");
+  const [isPaying, setIsPaying] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -263,29 +265,62 @@ export default function MovieBookingPage() {
   };
 
   const skipSnacksAndPay = () => {
-    proceedToPayment({ skipSnacks: true });
+    void proceedToPayment({ skipSnacks: true });
   };
 
-  const proceedToPayment = (options?: { skipSnacks?: boolean }) => {
+  const proceedToPayment = async (options?: { skipSnacks?: boolean }) => {
     if (!city || !selectedHall || !selectedDateKey || !showtime || heldSeatCount === 0) {
       alert("Please complete seat selection first.");
       return;
     }
     const snacksTotal = options?.skipSnacks ? 0 : snacksSubtotal;
     const total = ticketSubtotal + snacksTotal;
-    setBookedSeats((prev) => {
-      const next = new Set(prev);
-      heldSeatIds.forEach((seatId) => next.add(seatId));
-      return next;
-    });
-    setHeldSeats({});
-    setSelectedSeats(new Set());
-    setSnackCart({});
-    const snackSummary =
-      snacksTotal > 0 ? ` Snacks: NPR ${snacksTotal.toLocaleString()}.` : "";
-    alert(
-      `Booking complete (combined payment). Tickets: NPR ${ticketSubtotal.toLocaleString()}.${snackSummary} Total: NPR ${total.toLocaleString()}. Hook to backend to process payment.`
-    );
+    if (total <= 0) {
+      alert("Total amount must be greater than zero.");
+      return;
+    }
+
+    try {
+      setIsPaying(true);
+
+      const purchaseOrderId = `BOOK-${id}-${Date.now()}`;
+      const purchaseOrderName = `Tickets for ${movie?.title ?? "CineGhar"}`;
+
+      const metadata = {
+        city,
+        hallId: selectedHall.id,
+        hallName: selectedHall.name,
+        movieId: id,
+        movieTitle: movie?.title,
+        dateKey: selectedDateKey,
+        showtime,
+        seats: heldSeatIds,
+        ticketSubtotal,
+        snacksSubtotal: snacksTotal,
+        total,
+      };
+
+      const res = await initiateKhaltiPaymentApi({
+        amount: total,
+        purchaseOrderId,
+        purchaseOrderName,
+        metadata,
+      });
+
+      if (!res.success || !res.data?.payment_url) {
+        throw new Error(res.message || "Failed to start payment with Khalti");
+      }
+
+      // Redirect user to Khalti hosted payment page
+      window.location.href = res.data.payment_url;
+    } catch (error: any) {
+      // eslint-disable-next-line no-alert
+      alert(
+        error?.message || "Something went wrong while starting payment. Please try again."
+      );
+    } finally {
+      setIsPaying(false);
+    }
   };
 
   const addSnackToCart = (id: string) => {
@@ -967,10 +1002,11 @@ export default function MovieBookingPage() {
                         !selectedHall ||
                         !selectedDateKey ||
                         !showtime ||
-                        heldSeatCount === 0
+                        heldSeatCount === 0 ||
+                        isPaying
                       }
                     >
-                      Proceed to Payment
+                      {isPaying ? "Redirecting to Khalti..." : "Proceed to Payment"}
                     </button>
                   )}
                 </div>

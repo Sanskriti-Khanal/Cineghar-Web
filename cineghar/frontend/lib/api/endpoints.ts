@@ -33,6 +33,10 @@ export const API = {
   LOYALTY: {
     ME: "/api/loyalty/me",
   },
+  PAYMENT: {
+    KHALTI_INITIATE: "/api/payment/khalti/initiate",
+    KHALTI_LOOKUP: "/api/payment/khalti/lookup",
+  },
   MOVIES: "/api/movies",
   MOVIE_BY_ID: (id: string) => `/api/movies/${id}`,
 } as const;

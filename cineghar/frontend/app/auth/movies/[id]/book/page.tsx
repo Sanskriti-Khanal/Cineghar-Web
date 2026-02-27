@@ -235,8 +235,31 @@ export default function MovieBookingPage() {
   };
 
   const continueToSnacks = () => {
-    if (heldSeatCount === 0) return;
+    if (!city || !selectedHall || !selectedDateKey || !showtime) {
+      alert("Please complete city, hall, date and showtime first.");
+      return;
+    }
+    if (heldSeatCount === 0) {
+      if (selectedSeats.size === 0) {
+        alert("Please select at least one seat before continuing.");
+        return;
+      }
+      const nowTs = Date.now();
+      setHeldSeats((prev) => {
+        const next: Record<string, number> = { ...prev };
+        selectedSeats.forEach((seatId) => {
+          if (!bookedSeats.has(seatId)) {
+            next[seatId] = nowTs + HOLD_DURATION_MS;
+          }
+        });
+        return next;
+      });
+      setSelectedSeats(new Set());
+    }
     setStep(5);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const skipSnacksAndPay = () => {
@@ -583,7 +606,8 @@ export default function MovieBookingPage() {
                 </section>
 
                 {/* Step 4: Seats */}
-                <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-black/60 via-black/40 to-[#150308]/60 p-4 sm:p-5">
+                {step <= 4 && (
+                  <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-black/60 via-black/40 to-[#150308]/60 p-4 sm:p-5">
                   <header className="flex items-center justify-between mb-3">
                     <div>
                       <h2 className="text-sm font-semibold text-white">4. Pick Your Seats</h2>
@@ -681,6 +705,7 @@ export default function MovieBookingPage() {
                     Tip: Rows closer to the middle give the best viewing experience.
                   </p>
                 </section>
+                )}
 
                 {/* Step 5: Snacks & Beverages (Optional) */}
                 {step >= 5 && (
@@ -925,7 +950,7 @@ export default function MovieBookingPage() {
                           !selectedHall ||
                           !selectedDateKey ||
                           !showtime ||
-                          heldSeatCount === 0
+                          (heldSeatCount === 0 && selectedSeats.size === 0)
                         }
                       >
                         Continue

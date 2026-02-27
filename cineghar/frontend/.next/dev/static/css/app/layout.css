@@ -793,6 +793,9 @@
   .items-center {
     align-items: center;
   }
+  .items-end {
+    align-items: flex-end;
+  }
   .items-start {
     align-items: flex-start;
   }
@@ -810,6 +813,9 @@
   }
   .justify-start {
     justify-content: flex-start;
+  }
+  .gap-0\.5 {
+    gap: calc(var(--spacing) * 0.5);
   }
   .gap-1 {
     gap: calc(var(--spacing) * 1);
@@ -1824,6 +1830,9 @@
     --tw-tracking: var(--tracking-wider);
     letter-spacing: var(--tracking-wider);
   }
+  .break-all {
+    word-break: break-all;
+  }
   .whitespace-nowrap {
     white-space: nowrap;
   }
@@ -2220,6 +2229,11 @@
       }
     }
   }
+  .file\:mr-3 {
+    &::file-selector-button {
+      margin-right: calc(var(--spacing) * 3);
+    }
+  }
   .file\:mr-4 {
     &::file-selector-button {
       margin-right: calc(var(--spacing) * 4);
@@ -2228,6 +2242,11 @@
   .file\:rounded {
     &::file-selector-button {
       border-radius: 0.25rem;
+    }
+  }
+  .file\:rounded-md {
+    &::file-selector-button {
+      border-radius: var(--radius-md);
     }
   }
   .file\:border-0 {
@@ -2241,9 +2260,19 @@
       background-color: #8B0000;
     }
   }
+  .file\:px-3 {
+    &::file-selector-button {
+      padding-inline: calc(var(--spacing) * 3);
+    }
+  }
   .file\:px-4 {
     &::file-selector-button {
       padding-inline: calc(var(--spacing) * 4);
+    }
+  }
+  .file\:py-1\.5 {
+    &::file-selector-button {
+      padding-block: calc(var(--spacing) * 1.5);
     }
   }
   .file\:py-2 {
@@ -2255,6 +2284,12 @@
     &::file-selector-button {
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
+  }
+  .file\:text-xs {
+    &::file-selector-button {
+      font-size: var(--text-xs);
+      line-height: var(--tw-leading, var(--text-xs--line-height));
     }
   }
   .file\:font-medium {
@@ -2562,6 +2597,15 @@
       @media (hover: hover) {
         &::file-selector-button {
           background-color: #6B0000;
+        }
+      }
+    }
+  }
+  .hover\:file\:bg-\[\#a00000\] {
+    &:hover {
+      @media (hover: hover) {
+        &::file-selector-button {
+          background-color: #a00000;
         }
       }
     }

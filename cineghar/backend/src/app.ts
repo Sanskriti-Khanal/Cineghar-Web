@@ -11,9 +11,11 @@ import adminSalesRoute from "./routes/admin/sales.route";
 import adminLoyaltyRoute from "./routes/admin/loyalty.route";
 import adminOfferRoute from "./routes/admin/offer.route";
 import adminRewardRoute from "./routes/admin/reward.route";
+import adminSnackRoute from "./routes/admin/snack.route";
 import moviesRoute from "./routes/movies.route";
 import bookingRoute from "./routes/booking.route";
 import loyaltyRoute from "./routes/loyalty.route";
+import snackRoute from "./routes/snack.route";
 
 const app: Application = express();
 
@@ -44,9 +46,11 @@ app.use("/api/admin/sales", adminSalesRoute);
 app.use("/api/admin/loyalty", adminLoyaltyRoute);
 app.use("/api/admin/offers", adminOfferRoute);
 app.use("/api/admin/rewards", adminRewardRoute);
+app.use("/api/admin/snacks", adminSnackRoute);
 app.use("/api/movies", moviesRoute);
 app.use("/api/booking", bookingRoute);
 app.use("/api/loyalty", loyaltyRoute);
+app.use("/api/snacks", snackRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("CineGhar API Server");

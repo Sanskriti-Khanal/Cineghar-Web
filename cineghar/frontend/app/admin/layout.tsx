@@ -130,6 +130,21 @@ const adminNavItems: { href: string; label: string; exact: boolean; icon: React.
     ),
   },
   {
+    href: "/admin/snacks",
+    label: "Snacks",
+    exact: false,
+    icon: (
+      <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M5 3h14l-1 14H6L5 3zM8 21h8"
+        />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/offers",
     label: "Offers",
     exact: false,

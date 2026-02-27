@@ -25,6 +25,10 @@ export const API = {
     REWARD_BY_ID: (id: string) => `/api/admin/rewards/${id}`,
     OFFERS: "/api/admin/offers",
     OFFER_BY_ID: (id: string) => `/api/admin/offers/${id}`,
+    SNACK_ITEMS: "/api/admin/snacks/items",
+    SNACK_ITEM_BY_ID: (id: string) => `/api/admin/snacks/items/${id}`,
+    SNACK_COMBOS: "/api/admin/snacks/combos",
+    SNACK_COMBO_BY_ID: (id: string) => `/api/admin/snacks/combos/${id}`,
   },
   LOYALTY: {
     ME: "/api/loyalty/me",

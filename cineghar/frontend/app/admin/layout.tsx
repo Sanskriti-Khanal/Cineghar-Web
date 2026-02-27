@@ -78,6 +78,57 @@ const adminNavItems: { href: string; label: string; exact: boolean; icon: React.
       </svg>
     ),
   },
+  {
+    href: "/admin/sales",
+    label: "Sales",
+    exact: false,
+    icon: (
+      <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M3 3v18h18M7 14l4-4 3 3 5-5"
+        />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/loyalty",
+    label: "Loyalty",
+    exact: false,
+    icon: (
+      <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 8c-1.657 0-3 1.343-3 3 0 2.25 3 5 3 5s3-2.75 3-5c0-1.657-1.343-3-3-3z"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M5.5 20h13a1.5 1.5 0 001.355-2.06L13.88 4.5a1.5 1.5 0 00-2.76 0L4.145 17.94A1.5 1.5 0 005.5 20z"
+        />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/rewards",
+    label: "Rewards",
+    exact: false,
+    icon: (
+      <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M5 8l2 12h10l2-12M9 8V6a3 3 0 116 0v2"
+        />
+      </svg>
+    ),
+  },
 ];
 
 export default function AdminLayout({

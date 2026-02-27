@@ -3,6 +3,9 @@ import { CinemaHallModel, type City } from "../models/cinema-hall.model";
 import { ShowtimeModel } from "../models/showtime.model";
 import { SeatHoldModel } from "../models/seat-hold.model";
 import { BookingModel } from "../models/booking.model";
+import { UserModel } from "../models/user.model";
+import { LoyaltyTransactionModel } from "../models/loyalty-transaction.model";
+import { LoyaltyRuleModel } from "../models/loyalty-rule.model";
 import { HttpError } from "../errors/http-error";
 
 const SEAT_PRICE = 350;
@@ -258,14 +261,45 @@ export class BookingController {
       }
 
       const totalPrice = hold.seats.length * SEAT_PRICE;
-      const booking = await BookingModel.create({
-        showtime: showtimeId,
-        user: user._id,
-        seats: hold.seats,
-        totalPrice,
-        status: "confirmed",
-      });
-      await SeatHoldModel.deleteOne({ _id: hold._id });
+
+      const [booking] = await Promise.all([
+        BookingModel.create({
+          showtime: showtimeId,
+          user: user._id,
+          seats: hold.seats,
+          totalPrice,
+          status: "confirmed",
+        }),
+        SeatHoldModel.deleteOne({ _id: hold._id }),
+      ]);
+
+      // Loyalty earning: use active rule if present, otherwise default 1 point per 100 currency units
+      const activeRule = await LoyaltyRuleModel.findOne({
+        isActive: true,
+        startDate: { $lte: now },
+        $or: [{ endDate: { $gte: now } }, { endDate: { $exists: false } }],
+      })
+        .sort({ startDate: -1 })
+        .lean();
+
+      const pointsPerCurrencyUnit =
+        activeRule?.pointsPerCurrencyUnit ?? 0.01; // fallback: 1 point per 100
+
+      const earnedPoints = Math.floor(totalPrice * pointsPerCurrencyUnit);
+      if (earnedPoints > 0) {
+        const dbUser = await UserModel.findById(user._id);
+        if (dbUser) {
+          dbUser.loyaltyPoints = (dbUser.loyaltyPoints ?? 0) + earnedPoints;
+          await dbUser.save();
+          await LoyaltyTransactionModel.create({
+            user: dbUser._id,
+            change: earnedPoints,
+            reason: "Points earned from booking",
+            booking: booking._id,
+            meta: { totalPrice },
+          });
+        }
+      }
 
       return res.status(201).json({
         success: true,

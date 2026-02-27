@@ -1,3 +1,10 @@
 {
-  "/auth/movies/page": "app/auth/movies/page.js"
+  "/auth/sales/page": "app/auth/sales/page.js",
+  "/auth/loyalty-points/page": "app/auth/loyalty-points/page.js",
+  "/page": "app/page.js",
+  "/auth/dashboard/page": "app/auth/dashboard/page.js",
+  "/auth/movies/[id]/page": "app/auth/movies/[id]/page.js",
+  "/auth/movies/[id]/book/page": "app/auth/movies/[id]/book/page.js",
+  "/admin/loyalty/page": "app/admin/loyalty/page.js",
+  "/admin/sales/page": "app/admin/sales/page.js"
 }

@@ -11,6 +11,7 @@ const userMongoSchema: Schema = new Schema(
     imageUrl: { type: String, required: false },
     resetPasswordToken: { type: String, required: false },
     resetPasswordExpires: { type: Date, required: false },
+    loyaltyPoints: { type: Number, required: false, default: 0 },
   },
   {
     timestamps: true,
@@ -23,6 +24,7 @@ export interface IUser extends UserType, Document {
   updatedAt: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  loyaltyPoints?: number;
 }
 
 export const UserModel = mongoose.model<IUser>("User", userMongoSchema);

@@ -148,7 +148,7 @@ export default function AdminLayout({
               </div>
             </div>
             <Link
-              href="/auth/dashboard"
+              href="/"
               className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

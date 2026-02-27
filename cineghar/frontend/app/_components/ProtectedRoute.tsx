@@ -3,20 +3,28 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { ROUTES } from "@/utils/constants";
 
 export default function ProtectedRoute({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/login");
+    if (isLoading) return;
+    // If not logged in, send to login
+    if (!isAuthenticated) {
+      router.push(ROUTES.LOGIN);
+      return;
     }
-  }, [isAuthenticated, isLoading, router]);
+    // If admin is trying to access user /auth area, send to admin dashboard
+    if (user?.role === "admin") {
+      router.replace(ROUTES.ADMIN_DASHBOARD);
+    }
+  }, [isAuthenticated, isLoading, user, router]);
 
   if (isLoading) {
     return (
@@ -29,7 +37,8 @@ export default function ProtectedRoute({
     );
   }
 
-  if (!isAuthenticated) {
+  // While redirecting admins or unauthenticated users, render nothing
+  if (!isAuthenticated || user?.role === "admin") {
     return null;
   }
 

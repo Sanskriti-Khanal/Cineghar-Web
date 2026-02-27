@@ -14,14 +14,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES } from "@/utils/constants";
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace(ROUTES.DASHBOARD);
+      if (user?.role === "admin") {
+        router.replace(ROUTES.ADMIN_DASHBOARD);
+      } else {
+        router.replace(ROUTES.DASHBOARD);
+      }
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, user]);
 
   if (isLoading) {
     return (

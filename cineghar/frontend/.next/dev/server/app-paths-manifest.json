@@ -1,9 +1,13 @@
 {
   "/auth/movies/page": "app/auth/movies/page.js",
-  "/page": "app/page.js",
-  "/auth/movies/[id]/book/page": "app/auth/movies/[id]/book/page.js",
   "/auth/dashboard/page": "app/auth/dashboard/page.js",
-  "/auth/movies/[id]/page": "app/auth/movies/[id]/page.js",
   "/admin/movies/create/page": "app/admin/movies/create/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/halls/page": "app/admin/halls/page.js",
+  "/admin/halls/create/page": "app/admin/halls/create/page.js",
+  "/admin/showtimes/page": "app/admin/showtimes/page.js",
+  "/admin/users/page": "app/admin/users/page.js",
+  "/admin/showtimes/create/page": "app/admin/showtimes/create/page.js",
+  "/admin/users/create/page": "app/admin/users/create/page.js",
   "/admin/movies/page": "app/admin/movies/page.js"
 }

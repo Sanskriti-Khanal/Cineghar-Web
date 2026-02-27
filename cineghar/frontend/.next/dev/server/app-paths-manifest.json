@@ -1,8 +1,8 @@
 {
-  "/auth/dashboard/page": "app/auth/dashboard/page.js",
+  "/auth/movies/page": "app/auth/movies/page.js",
   "/auth/movies/[id]/page": "app/auth/movies/[id]/page.js",
+  "/auth/sales/page": "app/auth/sales/page.js",
   "/auth/movies/[id]/book/page": "app/auth/movies/[id]/book/page.js",
-  "/admin/offers/page": "app/admin/offers/page.js",
-  "/admin/rewards/page": "app/admin/rewards/page.js",
-  "/auth/sales/page": "app/auth/sales/page.js"
+  "/auth/dashboard/page": "app/auth/dashboard/page.js",
+  "/admin/offers/page": "app/admin/offers/page.js"
 }

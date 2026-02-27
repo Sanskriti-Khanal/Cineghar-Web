@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { getMyLoyaltyApi } from "@/lib/api/loyalty";
 
 type NavLink = {
   href: string;
@@ -19,6 +20,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showNavbar, setShowNavbar] = useState(true);
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
 
   // Only track sections on homepage
   const isHomePage = pathname === "/";
@@ -100,6 +102,30 @@ const Navbar = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setLoyaltyPoints(null);
+      return;
+    }
+    let cancelled = false;
+    const fetchLoyalty = async () => {
+      try {
+        const res = await getMyLoyaltyApi();
+        if (!cancelled && res.success && res.data) {
+          setLoyaltyPoints(res.data.loyaltyPoints ?? 0);
+        }
+      } catch {
+        if (!cancelled) {
+          setLoyaltyPoints(null);
+        }
+      }
+    };
+    void fetchLoyalty();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
 
   return (
     <nav
@@ -186,9 +212,18 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* User Avatar or Login/Signup Buttons */}
+            {/* Loyalty points + User Avatar or Login/Signup Buttons */}
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
+                {loyaltyPoints !== null && (
+                  <Link
+                    href="/auth/loyalty-points"
+                    className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-black/40 border border-yellow-400/50 px-3 py-1.5 text-[11px] font-medium text-yellow-100 hover:bg-black/60"
+                  >
+                    <span className="inline-block h-4 w-4 rounded-full bg-yellow-300" />
+                    <span>{loyaltyPoints.toLocaleString()} pts</span>
+                  </Link>
+                )}
                 <Link href="/user/profile" className="flex items-center gap-2 group">
                   <div className="w-10 h-10 rounded-full bg-gray-400 overflow-hidden cursor-pointer flex items-center justify-center group-hover:ring-2 group-hover:ring-[#8B0000] transition">
                     {user?.imageUrl ? (

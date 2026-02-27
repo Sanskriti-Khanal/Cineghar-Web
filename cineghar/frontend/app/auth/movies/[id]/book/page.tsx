@@ -7,6 +7,14 @@ import Navbar from "@/app/_components/Navbar";
 import { getMovieByIdApi, getPosterUrl } from "@/lib/api/publicMovies";
 import type { CinegharMovie } from "@/lib/api/publicMovies";
 import Image from "next/image";
+import SnackCard from "./SnackCard";
+import ComboCard from "./ComboCard";
+import {
+  SNACK_ITEMS,
+  SNACK_COMBOS,
+  SNACK_CATEGORY_TABS,
+  type SnackCategory,
+} from "./snack-data";
 
 type City = "Kathmandu" | "Pokhara" | "Chitwan";
 
@@ -90,7 +98,7 @@ const BOOKED_SEATS = new Set<string>([
 const SEAT_PRICE = 350;
 const HOLD_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 export default function MovieBookingPage() {
   const params = useParams();
@@ -112,6 +120,8 @@ export default function MovieBookingPage() {
     () => new Set(BOOKED_SEATS)
   );
   const [now, setNow] = useState(() => Date.now());
+  const [snackCart, setSnackCart] = useState<Record<string, number>>({});
+  const [snackTab, setSnackTab] = useState<SnackCategory | "combos">("veg");
 
   useEffect(() => {
     if (!id) {
@@ -176,7 +186,20 @@ export default function MovieBookingPage() {
 
   const heldSeatIds = Object.keys(heldSeats);
   const heldSeatCount = heldSeatIds.length;
-  const totalPrice = heldSeatCount * SEAT_PRICE;
+  const ticketSubtotal = heldSeatCount * SEAT_PRICE;
+  const snacksSubtotal = useMemo(() => {
+    let total = 0;
+    SNACK_ITEMS.forEach((item) => {
+      const qty = snackCart[item.id] ?? 0;
+      total += qty * item.price;
+    });
+    SNACK_COMBOS.forEach((combo) => {
+      const qty = snackCart[combo.id] ?? 0;
+      total += qty * combo.price;
+    });
+    return total;
+  }, [snackCart]);
+  const grandTotal = ticketSubtotal + snacksSubtotal;
   const posterSrc = getPosterUrl(movie?.posterUrl);
 
   const handleSeatToggle = (seatId: string) => {
@@ -211,21 +234,53 @@ export default function MovieBookingPage() {
     setSelectedSeats(new Set());
   };
 
-  const confirmBooking = () => {
+  const continueToSnacks = () => {
+    if (heldSeatCount === 0) return;
+    setStep(5);
+  };
+
+  const skipSnacksAndPay = () => {
+    proceedToPayment({ skipSnacks: true });
+  };
+
+  const proceedToPayment = (options?: { skipSnacks?: boolean }) => {
     if (!city || !selectedHall || !selectedDateKey || !showtime || heldSeatCount === 0) {
-      alert("Please select and hold seats before confirming your booking.");
+      alert("Please complete seat selection first.");
       return;
     }
+    const snacksTotal = options?.skipSnacks ? 0 : snacksSubtotal;
+    const total = ticketSubtotal + snacksTotal;
     setBookedSeats((prev) => {
       const next = new Set(prev);
-      heldSeatIds.forEach((seatId) => {
-        next.add(seatId);
-      });
+      heldSeatIds.forEach((seatId) => next.add(seatId));
       return next;
     });
     setHeldSeats({});
     setSelectedSeats(new Set());
-    alert("Booking UI complete – hook this up to backend later.");
+    setSnackCart({});
+    const snackSummary =
+      snacksTotal > 0 ? ` Snacks: NPR ${snacksTotal.toLocaleString()}.` : "";
+    alert(
+      `Booking complete (combined payment). Tickets: NPR ${ticketSubtotal.toLocaleString()}.${snackSummary} Total: NPR ${total.toLocaleString()}. Hook to backend to process payment.`
+    );
+  };
+
+  const addSnackToCart = (id: string) => {
+    setSnackCart((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
+  };
+  const incrementSnack = (id: string) => {
+    setSnackCart((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
+  };
+  const decrementSnack = (id: string) => {
+    setSnackCart((prev) => {
+      const current = prev[id] ?? 0;
+      if (current <= 1) {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      }
+      return { ...prev, [id]: current - 1 };
+    });
   };
 
   const dateDisplay = (key: "today" | "tomorrow") => {
@@ -343,11 +398,11 @@ export default function MovieBookingPage() {
               {/* Left: Steps */}
               <div className="space-y-6">
                 {/* Step indicator */}
-                <div className="flex items-center gap-3 text-xs text-gray-400">
-                  {[1, 2, 3, 4].map((s) => (
-                    <div key={s} className="flex items-center gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 text-xs text-gray-400 overflow-x-auto pb-1">
+                  {([1, 2, 3, 4, 5] as const).map((s) => (
+                    <div key={s} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                       <div
-                        className={`h-7 w-7 rounded-full flex items-center justify-center border text-[11px] ${
+                        className={`h-7 w-7 rounded-full flex items-center justify-center border text-[11px] transition-colors ${
                           step === s
                             ? "border-[#8B0000] bg-[#8B0000] text-white"
                             : step > s
@@ -357,8 +412,8 @@ export default function MovieBookingPage() {
                       >
                         {s}
                       </div>
-                      {s < 4 && (
-                        <div className="w-6 h-px bg-gradient-to-r from-white/20 to-transparent" />
+                      {s < 5 && (
+                        <div className="w-4 sm:w-6 h-px bg-gradient-to-r from-white/20 to-transparent" />
                       )}
                     </div>
                   ))}
@@ -626,6 +681,84 @@ export default function MovieBookingPage() {
                     Tip: Rows closer to the middle give the best viewing experience.
                   </p>
                 </section>
+
+                {/* Step 5: Snacks & Beverages (Optional) */}
+                {step >= 5 && (
+                  <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-black/60 via-black/40 to-[#150308]/60 p-4 sm:p-5 shadow-[0_18px_45px_rgba(0,0,0,0.8)] transition-opacity duration-300">
+                    <header className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                      <div>
+                        <h2 className="text-sm font-semibold text-white">
+                          5. Add Snacks & Beverages <span className="text-gray-400 font-normal">(Optional)</span>
+                        </h2>
+                        <p className="text-xs text-gray-400">
+                          Add treats to your order. One combined payment for tickets + snacks.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={skipSnacksAndPay}
+                        className="text-xs font-medium text-gray-400 hover:text-white underline underline-offset-2 transition-colors"
+                      >
+                        Skip Snacks
+                      </button>
+                    </header>
+
+                    {/* Category tabs */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {SNACK_CATEGORY_TABS.map((tab) => (
+                        <button
+                          key={tab.key}
+                          type="button"
+                          onClick={() => setSnackTab(tab.key)}
+                          className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                            snackTab === tab.key
+                              ? "bg-[#8B0000] text-white shadow-[0_4px_14px_rgba(139,0,0,0.4)]"
+                              : "bg-white/5 text-gray-300 border border-white/15 hover:bg-white/10 hover:border-[#8B0000]/50"
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Snack grid */}
+                    {snackTab !== "combos" && (
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {SNACK_ITEMS.filter((item) => item.category === snackTab).map((item) => (
+                          <SnackCard
+                            key={item.id}
+                            item={item}
+                            quantity={snackCart[item.id] ?? 0}
+                            onAdd={() => addSnackToCart(item.id)}
+                            onIncrement={() => incrementSnack(item.id)}
+                            onDecrement={() => decrementSnack(item.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Popular Combos - larger cards */}
+                    {snackTab === "combos" && (
+                      <div className="space-y-4">
+                        <p className="text-[11px] text-gray-400 uppercase tracking-wider">
+                          Best deals
+                        </p>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {SNACK_COMBOS.map((combo) => (
+                            <ComboCard
+                              key={combo.id}
+                              combo={combo}
+                              quantity={snackCart[combo.id] ?? 0}
+                              onAdd={() => addSnackToCart(combo.id)}
+                              onIncrement={() => incrementSnack(combo.id)}
+                              onDecrement={() => decrementSnack(combo.id)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                )}
               </div>
 
               {/* Right: Summary */}
@@ -714,61 +847,113 @@ export default function MovieBookingPage() {
                       )}
                     </span>
                   </div>
+                  {step >= 5 && Object.keys(snackCart).length > 0 && (
+                    <div className="flex gap-2">
+                      <span className="w-20 text-gray-400">Snacks</span>
+                      <span className="flex flex-wrap gap-1">
+                        {SNACK_ITEMS.filter((item) => (snackCart[item.id] ?? 0) > 0).map((item) => (
+                          <span
+                            key={item.id}
+                            className="rounded-full bg-[#8B0000]/30 border border-[#8B0000]/60 px-2 py-0.5 text-[11px] text-red-100"
+                          >
+                            {item.name} × {snackCart[item.id]}
+                          </span>
+                        ))}
+                        {SNACK_COMBOS.filter((combo) => (snackCart[combo.id] ?? 0) > 0).map((combo) => (
+                          <span
+                            key={combo.id}
+                            className="rounded-full bg-[#8B0000]/30 border border-[#8B0000]/60 px-2 py-0.5 text-[11px] text-red-100"
+                          >
+                            {combo.name} × {snackCart[combo.id]}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="my-4 h-px bg-gradient-to-r from-white/10 via-white/30 to-white/10" />
 
                 <div className="space-y-2 text-xs text-gray-200">
                   <div className="flex items-center justify-between">
-                    <span>Tickets</span>
+                    <span>Ticket subtotal</span>
                     <span>
-                      {heldSeatCount} × NPR {SEAT_PRICE}
+                      {heldSeatCount} × NPR {SEAT_PRICE} = NPR {ticketSubtotal.toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-gray-400">
-                    <span>Convenience fee</span>
-                    <span>Included</span>
-                  </div>
+                  {step >= 5 && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span>Snacks subtotal</span>
+                        <span>NPR {snacksSubtotal.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-gray-400">
+                        <span>Convenience fee</span>
+                        <span>Included</span>
+                      </div>
+                    </>
+                  )}
                   <div className="flex items-center justify-between text-sm font-semibold text-white pt-2">
-                    <span>Total</span>
-                    <span>NPR {totalPrice.toLocaleString()}</span>
+                    <span>{step >= 5 ? "Grand total" : "Total"}</span>
+                    <span>NPR {grandTotal.toLocaleString()}</span>
                   </div>
                 </div>
 
                 <div className="mt-4 flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={holdSeats}
-                    className="w-full rounded-full border border-[#8B0000] bg-transparent px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#8B0000]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                disabled={
-                  !city ||
-                  !selectedHall ||
-                  !selectedDateKey ||
-                  !showtime ||
-                  selectedSeats.size === 0
-                }
-                  >
-                    Hold Seats
-                  </button>
-                  <button
-                    type="button"
-                    onClick={confirmBooking}
-                    className="w-full rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(0,0,0,0.9)] hover:shadow-[0_18px_50px_rgba(0,0,0,1)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    disabled={
-                      !city ||
-                      !selectedHall ||
-                      !selectedDateKey ||
-                      !showtime ||
-                      heldSeatCount === 0
-                    }
-                  >
-                    Confirm Booking
-                  </button>
+                  {step < 5 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={holdSeats}
+                        className="w-full rounded-full border border-[#8B0000] bg-transparent px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#8B0000]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        disabled={
+                          !city ||
+                          !selectedHall ||
+                          !selectedDateKey ||
+                          !showtime ||
+                          selectedSeats.size === 0
+                        }
+                      >
+                        Hold Seats
+                      </button>
+                      <button
+                        type="button"
+                        onClick={continueToSnacks}
+                        className="w-full rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(0,0,0,0.9)] hover:shadow-[0_18px_50px_rgba(0,0,0,1)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        disabled={
+                          !city ||
+                          !selectedHall ||
+                          !selectedDateKey ||
+                          !showtime ||
+                          heldSeatCount === 0
+                        }
+                      >
+                        Continue
+                      </button>
+                    </>
+                  )}
+                  {step >= 5 && (
+                    <button
+                      type="button"
+                      onClick={proceedToPayment}
+                      className="w-full rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(0,0,0,0.9)] hover:shadow-[0_18px_50px_rgba(0,0,0,1)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      disabled={
+                        !city ||
+                        !selectedHall ||
+                        !selectedDateKey ||
+                        !showtime ||
+                        heldSeatCount === 0
+                      }
+                    >
+                      Proceed to Payment
+                    </button>
+                  )}
                 </div>
 
                 <p className="mt-2 text-[10px] text-gray-500 text-center">
-                  This is a demo booking flow UI. Integrate with your backend to complete
-                  reservations.
+                  {step >= 5
+                    ? "One combined payment for tickets and snacks."
+                    : "Hold seats, then continue to add snacks (optional) and pay."}
                 </p>
               </aside>
             </div>

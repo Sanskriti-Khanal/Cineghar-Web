@@ -5,7 +5,6 @@ import { SeatHoldModel } from "../models/seat-hold.model";
 import { BookingModel } from "../models/booking.model";
 import { UserModel } from "../models/user.model";
 import { LoyaltyTransactionModel } from "../models/loyalty-transaction.model";
-import { LoyaltyRuleModel } from "../models/loyalty-rule.model";
 import { HttpError } from "../errors/http-error";
 
 const SEAT_PRICE = 350;
@@ -273,19 +272,8 @@ export class BookingController {
         SeatHoldModel.deleteOne({ _id: hold._id }),
       ]);
 
-      // Loyalty earning: use active rule if present, otherwise default 1 point per 100 currency units
-      const activeRule = await LoyaltyRuleModel.findOne({
-        isActive: true,
-        startDate: { $lte: now },
-        $or: [{ endDate: { $gte: now } }, { endDate: { $exists: false } }],
-      })
-        .sort({ startDate: -1 })
-        .lean();
-
-      const pointsPerCurrencyUnit =
-        activeRule?.pointsPerCurrencyUnit ?? 0.01; // fallback: 1 point per 100
-
-      const earnedPoints = Math.floor(totalPrice * pointsPerCurrencyUnit);
+      // Loyalty earning: 5 points per ticket (seat)
+      const earnedPoints = hold.seats.length * 5;
       if (earnedPoints > 0) {
         const dbUser = await UserModel.findById(user._id);
         if (dbUser) {

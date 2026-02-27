@@ -26,6 +26,9 @@ export const API = {
     OFFERS: "/api/admin/offers",
     OFFER_BY_ID: (id: string) => `/api/admin/offers/${id}`,
   },
+  LOYALTY: {
+    ME: "/api/loyalty/me",
+  },
   MOVIES: "/api/movies",
   MOVIE_BY_ID: (id: string) => `/api/movies/${id}`,
 } as const;

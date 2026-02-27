@@ -5,7 +5,6 @@ import Navbar from "@/app/_components/Navbar";
 import { Crown, Popcorn, TicketPercent, Gift, Star, Film } from "lucide-react";
 
 export default function LoyaltyPointsPage() {
-  // Static demo data for now – can be wired to backend later
   const currentPoints = 2450;
   const tier = "Gold";
   const thisMonthPoints = 620;
@@ -177,8 +176,7 @@ export default function LoyaltyPointsPage() {
                       <div>
                         <p className="font-medium">Book movie tickets</p>
                         <p className="text-gray-400">
-                          Earn 10 pts for every Rs. 100 spent on tickets. Gold
-                          members get 1.5x.
+                          Earn 5 pts for every ticket you book.
                         </p>
                       </div>
                     </li>

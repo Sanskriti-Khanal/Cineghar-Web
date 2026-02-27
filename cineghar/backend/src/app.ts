@@ -6,6 +6,7 @@ import adminAuthRoute from "./routes/admin/auth.route";
 import adminUserRoute from "./routes/admin/user.route";
 import adminMovieRoute from "./routes/admin/movie.route";
 import moviesRoute from "./routes/movies.route";
+import bookingRoute from "./routes/booking.route";
 
 const app: Application = express();
 
@@ -31,6 +32,7 @@ app.use("/api/admin/auth", adminAuthRoute);
 app.use("/api/admin/users", adminUserRoute);
 app.use("/api/admin/movies", adminMovieRoute);
 app.use("/api/movies", moviesRoute);
+app.use("/api/booking", bookingRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("CineGhar API Server");

@@ -193,6 +193,10 @@ export default function MovieBookingPage() {
   };
 
   const holdSeats = () => {
+    if (!city || !selectedHall || !selectedDateKey || !showtime) {
+      alert("Please choose city, cinema hall, date and showtime before holding seats.");
+      return;
+    }
     if (selectedSeats.size === 0) return;
     const nowTs = Date.now();
     setHeldSeats((prev) => {
@@ -736,7 +740,13 @@ export default function MovieBookingPage() {
                     type="button"
                     onClick={holdSeats}
                     className="w-full rounded-full border border-[#8B0000] bg-transparent px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#8B0000]/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    disabled={selectedSeats.size === 0}
+                disabled={
+                  !city ||
+                  !selectedHall ||
+                  !selectedDateKey ||
+                  !showtime ||
+                  selectedSeats.size === 0
+                }
                   >
                     Hold Seats
                   </button>

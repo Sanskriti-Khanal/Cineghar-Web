@@ -129,6 +129,21 @@ const adminNavItems: { href: string; label: string; exact: boolean; icon: React.
       </svg>
     ),
   },
+  {
+    href: "/admin/offers",
+    label: "Offers",
+    exact: false,
+    icon: (
+      <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M3 5h18M5 9h14l-1 10H6L5 9zm4-4h6l1 4H8l1-4z"
+        />
+      </svg>
+    ),
+  },
 ];
 
 export default function AdminLayout({

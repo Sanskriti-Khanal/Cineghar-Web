@@ -23,6 +23,8 @@ export const API = {
     LOYALTY_ADJUST: "/api/admin/loyalty/adjust",
     REWARDS: "/api/admin/rewards",
     REWARD_BY_ID: (id: string) => `/api/admin/rewards/${id}`,
+    OFFERS: "/api/admin/offers",
+    OFFER_BY_ID: (id: string) => `/api/admin/offers/${id}`,
   },
   MOVIES: "/api/movies",
   MOVIE_BY_ID: (id: string) => `/api/movies/${id}`,

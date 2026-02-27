@@ -44,7 +44,7 @@ const adminNavItems: { href: string; label: string; exact: boolean; icon: React.
     exact: false,
     icon: (
       <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1z" />
       </svg>
     ),
   },
@@ -55,6 +55,26 @@ const adminNavItems: { href: string; label: string; exact: boolean; icon: React.
     icon: (
       <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/halls",
+    label: "Halls",
+    exact: false,
+    icon: (
+      <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18M5 7V5a2 2 0 012-2h10a2 2 0 012 2v2" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/showtimes",
+    label: "Showtimes",
+    exact: false,
+    icon: (
+      <svg className="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m4-7a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },

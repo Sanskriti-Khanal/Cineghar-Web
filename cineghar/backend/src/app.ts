@@ -5,6 +5,8 @@ import authRoute from "./routes/auth.route";
 import adminAuthRoute from "./routes/admin/auth.route";
 import adminUserRoute from "./routes/admin/user.route";
 import adminMovieRoute from "./routes/admin/movie.route";
+import adminHallRoute from "./routes/admin/hall.route";
+import adminShowtimeRoute from "./routes/admin/showtime.route";
 import moviesRoute from "./routes/movies.route";
 import bookingRoute from "./routes/booking.route";
 
@@ -31,6 +33,8 @@ app.use("/api/auth", authRoute);
 app.use("/api/admin/auth", adminAuthRoute);
 app.use("/api/admin/users", adminUserRoute);
 app.use("/api/admin/movies", adminMovieRoute);
+app.use("/api/admin/halls", adminHallRoute);
+app.use("/api/admin/showtimes", adminShowtimeRoute);
 app.use("/api/movies", moviesRoute);
 app.use("/api/booking", bookingRoute);
 

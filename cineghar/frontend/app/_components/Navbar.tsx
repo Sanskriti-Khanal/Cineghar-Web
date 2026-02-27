@@ -6,6 +6,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
+type NavLink = {
+  href: string;
+  label: string;
+  section?: string;
+};
+
 const Navbar = () => {
   const pathname = usePathname();
   const { isAuthenticated, user, logout } = useAuth();
@@ -68,21 +74,21 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isHomePage]);
 
-  const homeNavLinks = [
+  const homeNavLinks: NavLink[] = [
     { href: "/", label: "Home", section: "home" },
     { href: "/#features", label: "Features", section: "features" },
     { href: "/#movies", label: "Movies", section: "movies" },
     { href: "/#categories", label: "Categories", section: "categories" },
   ];
 
-  const dashboardNavLinks = [
+  const dashboardNavLinks: NavLink[] = [
     { href: "/", label: "Home" },
     { href: "/auth/movies", label: "Movies" },
     { href: "/auth/loyalty-points", label: "Loyalty points" },
     { href: "/auth/sales", label: "Sales" },
   ];
 
-  const navLinks = isAuthSection ? dashboardNavLinks : homeNavLinks;
+  const navLinks: NavLink[] = isAuthSection ? dashboardNavLinks : homeNavLinks;
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("/#")) {
@@ -128,6 +134,7 @@ const Navbar = () => {
                 isAuthSection
                   ? pathname === link.href
                   : isHomePage &&
+                    !!link.section &&
                     activeSection === link.section &&
                     (link.href === "/" || link.href.startsWith("/#"));
 

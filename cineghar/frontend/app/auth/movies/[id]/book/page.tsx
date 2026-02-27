@@ -554,25 +554,42 @@ export default function MovieBookingPage() {
                     </div>
                   </div>
 
-                  {/* Screen */}
-                  <div className="mb-3 flex flex-col items-center">
-                    <div className="w-40 h-1.5 rounded-full bg-gradient-to-r from-white/20 via-white/60 to-white/20" />
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-gray-400">
+                  {/* Screen (curved, C facing seats) */}
+                  <div className="mb-4 flex flex-col items-center">
+                    <div className="relative w-64 h-10 overflow-hidden">
+                      <div className="absolute inset-x-4 top-0 h-16 rounded-b-full border-2 border-white/40 border-t-transparent bg-gradient-to-b from-white/10 via-white/5 to-transparent shadow-[0_18px_45px_rgba(0,0,0,0.8)]" />
+                    </div>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-[0.25em] text-gray-400">
                       Screen
                     </p>
                   </div>
 
                   {/* Seats grid */}
                   <div className="space-y-2 overflow-x-auto pb-1">
-                    {ROWS.map((row) => (
-                      <div key={row} className="flex items-center gap-1 justify-center">
-                        <span className="w-4 text-[10px] text-gray-400">{row}</span>
+                    {ROWS.map((rowIndex, rowIdx) => (
+                      <div key={rowIndex} className="flex items-center gap-1 justify-center">
+                        <span className="w-4 text-[10px] text-gray-400">
+                          {rowIndex}
+                        </span>
                         {Array.from({ length: COLUMNS }, (_, i) => i + 1).map((col) => {
-                          const seatId = `${row}${col}`;
+                          const seatId = `${rowIndex}${col}`;
                           const isBooked = bookedSeats.has(seatId);
                           const holdExpiry = heldSeats[seatId];
                           const isHeld = !!holdExpiry && holdExpiry > now;
                           const isSelected = selectedSeats.has(seatId);
+                          const center = (COLUMNS + 1) / 2;
+                          const dist = Math.abs(col - center);
+                          // Seats curve slightly toward the screen (small "c")
+                          const baseCurve = 0.35;
+                          const rowFactor = 1 + rowIdx * 0.08; // back rows a bit flatter
+                          const yOffset = -(dist * dist * baseCurve) / rowFactor;
+                          const seatImageSrc = isBooked
+                            ? "/images/seats/booked.png"
+                            : isHeld
+                            ? "/images/seats/hold.png"
+                            : isSelected
+                            ? "/images/seats/selected.png"
+                            : "/images/seats/seat.png";
                           return (
                             <button
                               key={seatId}
@@ -584,17 +601,16 @@ export default function MovieBookingPage() {
                                   ? `Held · expires in ${formatTimeLeft(holdExpiry)}`
                                   : undefined
                               }
-                              className={`h-6 w-6 rounded-sm text-[9px] flex items-center justify-center border transition-all ${
-                                isBooked
-                                  ? "bg-red-700 border-red-800 text-white cursor-not-allowed"
-                                  : isHeld
-                                  ? "bg-yellow-400 border-yellow-500 text-black"
-                                  : isSelected
-                                  ? "bg-black border-[#8B0000] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.5)]"
-                                  : "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
-                              }`}
+                              className="h-7 w-7 rounded-full flex items-center justify-center transition-transform"
+                              style={{ transform: `translateY(${yOffset}px)` }}
                             >
-                              {col}
+                              <Image
+                                src={seatImageSrc}
+                                alt="Seat"
+                                width={24}
+                                height={24}
+                                className="pointer-events-none select-none"
+                              />
                             </button>
                           );
                         })}

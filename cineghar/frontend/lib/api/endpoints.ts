@@ -18,6 +18,8 @@ export const API = {
     SHOWTIMES: "/api/admin/showtimes",
     SHOWTIME_BY_ID: (id: string) => `/api/admin/showtimes/${id}`,
     SALES_SUMMARY: "/api/admin/sales/summary",
+    DASHBOARD_STATS: "/api/admin/dashboard/stats",
+    DASHBOARD_ORDERS: "/api/admin/dashboard/orders",
     LOYALTY_USERS: "/api/admin/loyalty/users",
     LOYALTY_USER_BY_ID: (id: string) => `/api/admin/loyalty/users/${id}`,
     LOYALTY_ADJUST: "/api/admin/loyalty/adjust",
@@ -33,10 +35,14 @@ export const API = {
   LOYALTY: {
     ME: "/api/loyalty/me",
   },
+  OFFERS: "/api/offers",
+  REWARDS: "/api/rewards",
   PAYMENT: {
     KHALTI_INITIATE: "/api/payment/khalti/initiate",
     KHALTI_LOOKUP: "/api/payment/khalti/lookup",
+    CONFIRM: "/api/payment/confirm",
   },
+  ORDERS: "/api/orders",
   MOVIES: "/api/movies",
   MOVIE_BY_ID: (id: string) => `/api/movies/${id}`,
 } as const;

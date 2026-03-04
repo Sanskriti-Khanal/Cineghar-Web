@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
@@ -64,7 +64,7 @@ export default function AdminMovieEditPage() {
     formState: { errors, isSubmitting },
     reset,
   } = useForm<UpdateMovieFormInputs>({
-    resolver: zodResolver(updateMovieSchema),
+    resolver: zodResolver(updateMovieSchema) as Resolver<UpdateMovieFormInputs>,
   });
 
   useEffect(() => {

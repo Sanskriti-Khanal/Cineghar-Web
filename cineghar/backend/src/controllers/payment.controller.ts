@@ -7,46 +7,131 @@ import {
   KHALTI_WEBSITE_URL,
 } from "../configs";
 import { HttpError } from "../errors/http-error";
+import { PendingPaymentModel } from "../models/pending-payment.model";
+import { OrderModel } from "../models/order.model";
+import { UserModel } from "../models/user.model";
+import { LoyaltyTransactionModel } from "../models/loyalty-transaction.model";
+import { OfferModel } from "../models/offer.model";
+
+const POINTS_PER_SEAT = 5;
+/** 1 loyalty point = 1 NPR discount when redeeming */
+const LOYALTY_POINTS_PER_NPR = 1;
 
 interface InitiateKhaltiRequestBody {
-  amount?: number; // in NPR (rupees)
+  amount?: number; // in NPR (rupees) – subtotal before discount
   purchaseOrderId?: string;
   purchaseOrderName?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown> & {
+    seats?: string[];
+    total?: number;
+    ticketSubtotal?: number;
+    movieTitle?: string;
+    movieId?: string;
+  };
+  offerCode?: string;
+  loyaltyPointsToRedeem?: number;
 }
 
 export class PaymentController {
   async initiateKhaltiEpayment(req: Request, res: Response) {
     try {
-      if (!KHALTI_SECRET_KEY) {
+      const secretKey = (KHALTI_SECRET_KEY || "").trim();
+      if (!secretKey) {
         throw new HttpError(
           500,
-          "Khalti configuration missing. Please set KHALTI_SECRET_KEY."
+          "Khalti configuration missing. Set KHALTI_SECRET_KEY in backend .env (get it from test-admin.khalti.com for sandbox)."
         );
       }
 
       const body = req.body as InitiateKhaltiRequestBody;
-      const amountRupees = body.amount;
+      const subtotal = body.amount;
       const purchaseOrderId = body.purchaseOrderId;
       const purchaseOrderName = body.purchaseOrderName;
+      const offerCode = typeof body.offerCode === "string" ? body.offerCode.trim() || undefined : undefined;
+      const loyaltyPointsToRedeem = typeof body.loyaltyPointsToRedeem === "number" && body.loyaltyPointsToRedeem > 0 ? body.loyaltyPointsToRedeem : undefined;
 
-      if (
-        !amountRupees ||
-        Number.isNaN(amountRupees) ||
-        amountRupees <= 0
-      ) {
+      if (!subtotal || Number.isNaN(subtotal) || subtotal <= 0) {
         throw new HttpError(400, "Valid amount (in NPR) is required");
       }
       if (!purchaseOrderId || !purchaseOrderName) {
-        throw new HttpError(
-          400,
-          "purchaseOrderId and purchaseOrderName are required"
-        );
+        throw new HttpError(400, "purchaseOrderId and purchaseOrderName are required");
       }
 
-      const amountPaisa = Math.round(amountRupees * 100);
+      const user = req.user as { _id: string };
+      if (!user?._id) {
+        throw new HttpError(401, "Unauthorized");
+      }
 
-      const returnUrl = `${FRONTEND_URL}/auth/payment/khalti/return`;
+      const metadata = body.metadata || {};
+      const seats = Array.isArray(metadata.seats) ? metadata.seats : [];
+      const subtotalFromMeta = Number(metadata.total) ?? Number(metadata.ticketSubtotal) ?? subtotal;
+
+      let totalPrice = subtotalFromMeta;
+      let discountApplied = 0;
+      let appliedOfferCode: string | undefined;
+      let appliedLoyaltyPoints = 0;
+
+      if (offerCode && loyaltyPointsToRedeem) {
+        throw new HttpError(400, "Use either an offer code or loyalty points, not both");
+      }
+
+      if (offerCode) {
+        const now = new Date();
+        const offer = await OfferModel.findOne({
+          code: offerCode,
+          isActive: true,
+          type: { $in: ["percentage_discount", "fixed_discount"] },
+          startDate: { $lte: now },
+          $or: [{ endDate: { $exists: false } }, { endDate: null }, { endDate: { $gte: now } }],
+        }).lean();
+        if (!offer) {
+          throw new HttpError(400, "Invalid or expired offer code");
+        }
+        const minSpend = offer.minSpend ?? 0;
+        if (subtotalFromMeta < minSpend) {
+          throw new HttpError(400, `Minimum spend for this offer is NPR ${minSpend}`);
+        }
+        if (offer.type === "percentage_discount" && offer.discountPercent != null) {
+          discountApplied = Math.min((subtotalFromMeta * offer.discountPercent) / 100, subtotalFromMeta);
+        } else if (offer.type === "fixed_discount" && offer.discountAmount != null) {
+          discountApplied = Math.min(offer.discountAmount, subtotalFromMeta);
+        }
+        totalPrice = Math.max(0, subtotalFromMeta - discountApplied);
+        appliedOfferCode = offer.code;
+      } else if (loyaltyPointsToRedeem) {
+        const dbUser = await UserModel.findById(user._id).select("loyaltyPoints").lean();
+        const userPoints = dbUser?.loyaltyPoints ?? 0;
+        if (loyaltyPointsToRedeem > userPoints) {
+          throw new HttpError(400, "Insufficient loyalty points");
+        }
+        const maxDiscountFromPoints = loyaltyPointsToRedeem * LOYALTY_POINTS_PER_NPR;
+        discountApplied = Math.min(maxDiscountFromPoints, subtotalFromMeta);
+        appliedLoyaltyPoints = Math.min(loyaltyPointsToRedeem, Math.floor(discountApplied / LOYALTY_POINTS_PER_NPR));
+        totalPrice = Math.max(0, subtotalFromMeta - discountApplied);
+      }
+
+      if (totalPrice <= 0) {
+        throw new HttpError(400, "Amount after discount must be greater than zero");
+      }
+
+      const amountPaisa = Math.round(totalPrice * 100);
+
+      await PendingPaymentModel.findOneAndUpdate(
+        { purchaseOrderId },
+        {
+          purchaseOrderId,
+          user: user._id,
+          seats,
+          totalPrice,
+          metadata: body.metadata,
+          discountApplied,
+          offerCode: appliedOfferCode,
+          loyaltyPointsToRedeem: appliedLoyaltyPoints,
+        },
+        { upsert: true, new: true }
+      );
+
+      const returnUrl = `${FRONTEND_URL}/auth/payment/khalti/return?po=${encodeURIComponent(purchaseOrderId)}`;
 
       const payload: Record<string, unknown> = {
         return_url: returnUrl,
@@ -65,7 +150,7 @@ export class PaymentController {
         payload,
         {
           headers: {
-            Authorization: `Key ${KHALTI_SECRET_KEY}`,
+            Authorization: `key ${secretKey}`,
             "Content-Type": "application/json",
           },
         }
@@ -78,11 +163,15 @@ export class PaymentController {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         const status = error.response?.status ?? 500;
-        const message =
+        let message =
           (error.response?.data as any)?.detail ||
           (error.response?.data as any)?.message ||
           error.message ||
           "Failed to initiate Khalti payment";
+        if (status === 401 && /invalid token/i.test(String(message))) {
+          message =
+            "Khalti secret key is invalid. Check KHALTI_SECRET_KEY in backend .env (get live_secret_key from test-admin.khalti.com for sandbox).";
+        }
         return res.status(status).json({
           success: false,
           message,
@@ -98,10 +187,11 @@ export class PaymentController {
 
   async lookupKhaltiPayment(req: Request, res: Response) {
     try {
-      if (!KHALTI_SECRET_KEY) {
+      const secretKey = (KHALTI_SECRET_KEY || "").trim();
+      if (!secretKey) {
         throw new HttpError(
           500,
-          "Khalti configuration missing. Please set KHALTI_SECRET_KEY."
+          "Khalti configuration missing. Set KHALTI_SECRET_KEY in backend .env"
         );
       }
 
@@ -118,7 +208,7 @@ export class PaymentController {
         { pidx },
         {
           headers: {
-            Authorization: `Key ${KHALTI_SECRET_KEY}`,
+            Authorization: `key ${secretKey}`,
             "Content-Type": "application/json",
           },
         }
@@ -142,6 +232,134 @@ export class PaymentController {
         });
       }
 
+      return res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  }
+
+  async confirmPayment(req: Request, res: Response) {
+    try {
+      const user = req.user as { _id: string };
+      if (!user?._id) {
+        throw new HttpError(401, "Unauthorized");
+      }
+
+      const secretKey = (KHALTI_SECRET_KEY || "").trim();
+      if (!secretKey) {
+        throw new HttpError(500, "Khalti configuration missing");
+      }
+
+      const { pidx, purchaseOrderId } = req.body as {
+        pidx?: string;
+        purchaseOrderId?: string;
+      };
+      if (!pidx || !purchaseOrderId) {
+        throw new HttpError(400, "pidx and purchaseOrderId are required");
+      }
+
+      const existingOrder = await OrderModel.findOne({ purchaseOrderId }).lean();
+      if (existingOrder) {
+        return res.status(200).json({
+          success: true,
+          message: "Order already confirmed",
+          data: existingOrder,
+        });
+      }
+
+      const { data: lookupData } = await axios.post<{
+        status: string;
+        total_amount: number;
+        transaction_id: string | null;
+      }>(
+        `${KHALTI_BASE_URL}/epayment/lookup/`,
+        { pidx },
+        {
+          headers: {
+            Authorization: `key ${secretKey}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (lookupData.status !== "Completed") {
+        throw new HttpError(
+          400,
+          `Payment not completed. Status: ${lookupData.status}`
+        );
+      }
+
+      const pending = await PendingPaymentModel.findOne({
+        purchaseOrderId,
+        user: user._id,
+      });
+      if (!pending) {
+        throw new HttpError(404, "Pending payment not found or expired");
+      }
+
+      const seatsCount = pending.seats.length;
+      const earnedPoints = seatsCount * POINTS_PER_SEAT;
+      const redeemPoints = pending.loyaltyPointsToRedeem ?? 0;
+
+      const [order] = await Promise.all([
+        OrderModel.create({
+          user: user._id,
+          purchaseOrderId,
+          pidx,
+          khaltiTransactionId: lookupData.transaction_id || undefined,
+          amount: pending.totalPrice,
+          seatsCount,
+          seats: pending.seats,
+          movieTitle: (pending.metadata as any)?.movieTitle,
+          movieId: (pending.metadata as any)?.movieId,
+          status: "completed",
+        }),
+        PendingPaymentModel.deleteOne({ _id: pending._id }),
+      ]);
+
+      const dbUser = await UserModel.findById(user._id);
+      if (dbUser) {
+        if (redeemPoints > 0) {
+          dbUser.loyaltyPoints = (dbUser.loyaltyPoints ?? 0) - redeemPoints;
+          await dbUser.save();
+          await LoyaltyTransactionModel.create({
+            user: dbUser._id,
+            change: -redeemPoints,
+            reason: "Redeemed for booking",
+            meta: { orderId: order._id },
+          });
+        }
+        if (earnedPoints > 0) {
+          dbUser.loyaltyPoints = (dbUser.loyaltyPoints ?? 0) + earnedPoints;
+          await dbUser.save();
+          await LoyaltyTransactionModel.create({
+            user: dbUser._id,
+            change: earnedPoints,
+            reason: "Points earned from booking",
+            meta: { orderId: order._id, amount: pending.totalPrice, seatsCount },
+          });
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Order confirmed and loyalty points awarded",
+        data: order,
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status ?? 500;
+        const message =
+          (error.response?.data as any)?.detail ||
+          (error.response?.data as any)?.message ||
+          error.message ||
+          "Failed to confirm payment";
+        return res.status(status).json({
+          success: false,
+          message,
+        });
+      }
       return res.status(error.statusCode || 500).json({
         success: false,
         message: error.message || "Internal Server Error",

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProtectedRoute from "@/app/_components/ProtectedRoute";
 import Navbar from "@/app/_components/Navbar";
-import { lookupKhaltiPaymentApi } from "@/lib/api/payment";
+import { lookupKhaltiPaymentApi, confirmPaymentApi } from "@/lib/api/payment";
 
 type ViewState =
   | { type: "idle" }
@@ -15,15 +15,17 @@ type ViewState =
       status: string;
       amount: number;
       transactionId: string | null;
+      orderConfirmed?: boolean;
     };
 
-export default function KhaltiReturnPage() {
+function KhaltiReturnContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [state, setState] = useState<ViewState>({ type: "idle" });
 
   useEffect(() => {
     const pidx = searchParams.get("pidx");
+    const purchaseOrderId = searchParams.get("po");
     if (!pidx) {
       setState({
         type: "error",
@@ -39,11 +41,21 @@ export default function KhaltiReturnPage() {
         if (!res.success || !res.data) {
           throw new Error(res.message || "Failed to verify payment.");
         }
+        let orderConfirmed = false;
+        if (res.data.status === "Completed" && purchaseOrderId) {
+          try {
+            const confirmRes = await confirmPaymentApi({ pidx, purchaseOrderId });
+            orderConfirmed = confirmRes.success === true;
+          } catch {
+            // confirm may fail if already confirmed; still show success
+          }
+        }
         setState({
           type: "result",
           status: res.data.status,
           amount: res.data.total_amount,
           transactionId: res.data.transaction_id,
+          orderConfirmed,
         });
       } catch (error: any) {
         setState({
@@ -110,10 +122,11 @@ export default function KhaltiReturnPage() {
             </div>
           </div>
 
-          <p className="mt-4 text-[11px] text-gray-400">
-            This page currently confirms payment with Khalti only. Linking this to
-            actual seat bookings can be done next by connecting the booking API.
-          </p>
+          {state.type === "result" && state.orderConfirmed && (
+            <p className="mt-3 text-xs text-emerald-300">
+              Order recorded and loyalty points have been added to your account.
+            </p>
+          )}
 
           <div className="mt-5 flex flex-wrap gap-2">
             <button
@@ -149,6 +162,30 @@ export default function KhaltiReturnPage() {
         </main>
       </div>
     </ProtectedRoute>
+  );
+}
+
+function KhaltiReturnFallback() {
+  return (
+    <ProtectedRoute>
+      <div className="min-h-screen bg-[#050509] text-white">
+        <Navbar />
+        <main className="pt-16 pb-10">
+          <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center py-16 text-sm text-gray-300">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#8B0000] border-t-transparent mb-3" />
+            <p>Loading…</p>
+          </div>
+        </main>
+      </div>
+    </ProtectedRoute>
+  );
+}
+
+export default function KhaltiReturnPage() {
+  return (
+    <Suspense fallback={<KhaltiReturnFallback />}>
+      <KhaltiReturnContent />
+    </Suspense>
   );
 }
 

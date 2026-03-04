@@ -1,41 +1,68 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import {
+  getAdminDashboardStatsApi,
+  getAdminDashboardOrdersApi,
+  type DashboardStats,
+  type RecentOrderItem,
+} from "@/lib/api/adminDashboard";
+
 export default function AdminDashboardPage() {
-  // Static placeholders for now – wire to API later
-  const summaryCards = [
-    {
-      label: "Total Movies",
-      value: "—",
-      helper: "All movies in catalogue",
-    },
-    {
-      label: "Today’s Bookings",
-      value: "—",
-      helper: "Tickets booked today",
-    },
-    {
-      label: "Active Shows Today",
-      value: "—",
-      helper: "Shows running across all halls",
-    },
-    {
-      label: "Today’s Revenue",
-      value: "—",
-      helper: "Gross box office + snacks",
-    },
-  ];
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentOrders, setRecentOrders] = useState<RecentOrderItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const recentBookings = [
-    // examples – replace with real data
-  ];
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [statsRes, ordersRes] = await Promise.all([
+          getAdminDashboardStatsApi(),
+          getAdminDashboardOrdersApi({ limit: 5 }),
+        ]);
+        if (statsRes.success && statsRes.data) setStats(statsRes.data);
+        if (ordersRes.success && Array.isArray(ordersRes.data)) setRecentOrders(ordersRes.data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to load dashboard");
+      } finally {
+        setLoading(false);
+      }
+    };
+    void load();
+  }, []);
 
-  const todaysShows = [
+  const summaryCards = stats
+    ? [
+        { label: "Total Movies", value: String(stats.totalMovies), helper: "All movies in catalogue" },
+        { label: "Today’s Bookings", value: String(stats.todayBookings), helper: "Tickets booked today" },
+        { label: "Active Shows Today", value: String(stats.activeShowsToday), helper: "Shows running across all halls" },
+        { label: "Today’s Revenue", value: `NPR ${stats.todayRevenue.toLocaleString()}`, helper: "Gross box office" },
+      ]
+    : [
+        { label: "Total Movies", value: "—", helper: "All movies in catalogue" },
+        { label: "Today’s Bookings", value: "—", helper: "Tickets booked today" },
+        { label: "Active Shows Today", value: "—", helper: "Shows running across all halls" },
+        { label: "Today’s Revenue", value: "—", helper: "Gross box office" },
+      ];
+
+  const todaysShows: { id: string }[] = [
     // examples – replace with real data
   ];
 
   const revenueSparkline = [40, 55, 30, 65, 50, 80, 60];
 
   const alerts: { type: "info" | "warning" | "critical"; message: string }[] = [];
+
+  if (loading && !stats) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#8B0000] border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -47,6 +74,12 @@ export default function AdminDashboardPage() {
           </p>
         </div>
       </header>
+
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          {error}
+        </div>
+      )}
 
       {/* Top summary cards */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -81,13 +114,13 @@ export default function AdminDashboardPage() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                      Booking
+                      User
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                       Movie
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                      Show time
+                      Amount
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                       Seats
@@ -98,19 +131,36 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {recentBookings.length === 0 ? (
+                  {recentOrders.length === 0 ? (
                     <tr>
                       <td
                         colSpan={5}
                         className="px-4 py-6 text-center text-xs text-gray-500"
                       >
-                        No bookings to display yet. Bookings will appear here in real time.
+                        No orders yet. Orders will appear here after customers pay.
                       </td>
                     </tr>
                   ) : (
-                    recentBookings.map((booking) => (
-                      <tr key={booking.id} className="hover:bg-gray-50">
-                        {/* placeholder typing only – replace when wiring data */}
+                    recentOrders.map((order) => (
+                      <tr key={order._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm text-gray-900">
+                          {order.user?.name || order.user?.email || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          {order.movieTitle || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-700">
+                          NPR {order.amount.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {order.seatsCount} ({order.seats?.slice(0, 3).join(", ")}
+                          {order.seats?.length > 3 ? "…" : ""})
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                            {order.status}
+                          </span>
+                        </td>
                       </tr>
                     ))
                   )}

@@ -16,6 +16,10 @@ import {
   type SnackCategory,
 } from "./snack-data";
 import { initiateKhaltiPaymentApi } from "@/lib/api/payment";
+import { getActiveOffersApi, type ActiveOffer } from "@/lib/api/offers";
+import { getRewardsApi, type Reward } from "@/lib/api/rewards";
+import { getMyLoyaltyApi } from "@/lib/api/loyalty";
+import { getAuthTokenSync } from "@/lib/cookie";
 
 type City = "Kathmandu" | "Pokhara" | "Chitwan";
 
@@ -124,6 +128,14 @@ export default function MovieBookingPage() {
   const [snackCart, setSnackCart] = useState<Record<string, number>>({});
   const [snackTab, setSnackTab] = useState<SnackCategory | "combos">("veg");
   const [isPaying, setIsPaying] = useState(false);
+  type DiscountType = "none" | "offer" | "loyalty";
+  const [discountType, setDiscountType] = useState<DiscountType>("none");
+  const [selectedOfferCode, setSelectedOfferCode] = useState<string>("");
+  const [offers, setOffers] = useState<ActiveOffer[]>([]);
+  const [rewards, setRewards] = useState<Reward[]>([]);
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
+  const [selectedRewardId, setSelectedRewardId] = useState<string>("");
+  const [discountLoading, setDiscountLoading] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -140,7 +152,7 @@ export default function MovieBookingPage() {
         if (res.success && res.data) {
           setMovie(res.data);
         } else {
-          setMovieError(res.message || "Movie not found");
+          setMovieError("Movie not found");
         }
       } catch (err) {
         setMovieError(err instanceof Error ? err.message : "Failed to fetch movie");
@@ -151,6 +163,19 @@ export default function MovieBookingPage() {
 
     fetchMovie();
   }, [id]);
+
+  useEffect(() => {
+    if (step < 5) return;
+    setDiscountLoading(true);
+    Promise.all([getActiveOffersApi(), getRewardsApi(), getMyLoyaltyApi()])
+      .then(([offersRes, rewardsRes, loyaltyRes]) => {
+        if (offersRes.success && Array.isArray(offersRes.data)) setOffers(offersRes.data);
+        if (rewardsRes.success && Array.isArray(rewardsRes.data)) setRewards(rewardsRes.data);
+        if (loyaltyRes.data?.loyaltyPoints != null) setLoyaltyPoints(loyaltyRes.data.loyaltyPoints);
+      })
+      .catch(() => {})
+      .finally(() => setDiscountLoading(false));
+  }, [step]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -202,6 +227,35 @@ export default function MovieBookingPage() {
     return total;
   }, [snackCart]);
   const grandTotal = ticketSubtotal + snacksSubtotal;
+  const selectedOffer = useMemo(
+    () => offers.find((o) => o.code === selectedOfferCode) ?? null,
+    [offers, selectedOfferCode]
+  );
+  const LOYALTY_NPR_PER_POINT = 1;
+  const selectedReward = useMemo(
+    () => rewards.find((r) => r._id === selectedRewardId) ?? null,
+    [rewards, selectedRewardId]
+  );
+  const loyaltyPointsToUse = useMemo(() => {
+    if (discountType === "loyalty" && selectedReward) return selectedReward.pointsRequired;
+    return 0;
+  }, [discountType, selectedReward]);
+  const discountAmount = useMemo(() => {
+    if (discountType === "offer" && selectedOffer) {
+      if (selectedOffer.type === "percentage_discount" && selectedOffer.discountPercent != null) {
+        return Math.min((grandTotal * selectedOffer.discountPercent) / 100, grandTotal);
+      }
+      if (selectedOffer.type === "fixed_discount" && selectedOffer.discountAmount != null) {
+        return Math.min(selectedOffer.discountAmount, grandTotal);
+      }
+    }
+    if (discountType === "loyalty" && loyaltyPointsToUse > 0) {
+      const fromPoints = loyaltyPointsToUse * LOYALTY_NPR_PER_POINT;
+      return Math.min(fromPoints, grandTotal);
+    }
+    return 0;
+  }, [discountType, selectedOffer, grandTotal, loyaltyPointsToUse]);
+  const grandTotalAfterDiscount = Math.max(0, grandTotal - discountAmount);
   const posterSrc = getPosterUrl(movie?.posterUrl);
 
   const handleSeatToggle = (seatId: string) => {
@@ -274,9 +328,16 @@ export default function MovieBookingPage() {
       return;
     }
     const snacksTotal = options?.skipSnacks ? 0 : snacksSubtotal;
-    const total = ticketSubtotal + snacksTotal;
-    if (total <= 0) {
+    const subtotal = ticketSubtotal + snacksTotal;
+    if (subtotal <= 0) {
       alert("Total amount must be greater than zero.");
+      return;
+    }
+
+    const token = getAuthTokenSync();
+    if (!token) {
+      alert("You must be logged in to pay. Please log in and try again.");
+      router.push("/login");
       return;
     }
 
@@ -297,14 +358,20 @@ export default function MovieBookingPage() {
         seats: heldSeatIds,
         ticketSubtotal,
         snacksSubtotal: snacksTotal,
-        total,
+        total: subtotal,
       };
 
       const res = await initiateKhaltiPaymentApi({
-        amount: total,
+        amount: subtotal,
         purchaseOrderId,
         purchaseOrderName,
         metadata,
+        ...(discountType === "offer" && selectedOfferCode
+          ? { offerCode: selectedOfferCode }
+          : {}),
+        ...(discountType === "loyalty" && loyaltyPointsToUse > 0
+          ? { loyaltyPointsToRedeem: loyaltyPointsToUse }
+          : {}),
       });
 
       if (!res.success || !res.data?.payment_url) {
@@ -314,10 +381,16 @@ export default function MovieBookingPage() {
       // Redirect user to Khalti hosted payment page
       window.location.href = res.data.payment_url;
     } catch (error: any) {
+      const status = error?.response?.status;
+      const message =
+        status === 401
+          ? "Session expired or you're not logged in. Please log in again."
+          : error?.message || "Something went wrong while starting payment. Please try again.";
       // eslint-disable-next-line no-alert
-      alert(
-        error?.message || "Something went wrong while starting payment. Please try again."
-      );
+      alert(message);
+      if (status === 401) {
+        router.push("/login");
+      }
     } finally {
       setIsPaying(false);
     }
@@ -953,9 +1026,121 @@ export default function MovieBookingPage() {
                       </div>
                     </>
                   )}
+                  {step >= 5 && (
+                    <>
+                      <div className="my-3 h-px bg-white/10" />
+                      <p className="text-[11px] font-medium text-gray-400 mb-2">Apply discount</p>
+                      <div className="space-y-2 mb-3">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="discountType"
+                            checked={discountType === "none"}
+                            onChange={() => {
+                              setDiscountType("none");
+                              setSelectedOfferCode("");
+                              setSelectedRewardId("");
+                            }}
+                            className="rounded border-white/30 text-[#8B0000] focus:ring-[#8B0000]"
+                          />
+                          <span className="text-xs text-gray-300">None</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="discountType"
+                            checked={discountType === "offer"}
+                            onChange={() => {
+                              setDiscountType("offer");
+                              setSelectedRewardId("");
+                            }}
+                            className="rounded border-white/30 text-[#8B0000] focus:ring-[#8B0000]"
+                          />
+                          <span className="text-xs text-gray-300">Use offer / sale</span>
+                        </label>
+                        {discountType === "offer" && (
+                          <div className="pl-5">
+                            {discountLoading ? (
+                              <span className="text-[11px] text-gray-500">Loading offers…</span>
+                            ) : (
+                              <select
+                                value={selectedOfferCode}
+                                onChange={(e) => setSelectedOfferCode(e.target.value)}
+                                className="mt-1 w-full rounded-lg border border-white/20 bg-black/40 px-2 py-1.5 text-xs text-white focus:border-[#8B0000] focus:outline-none"
+                              >
+                                <option value="">Select offer</option>
+                                {offers.map((o) => (
+                                  <option key={o._id} value={o.code}>
+                                    {o.name} ({o.code})
+                                    {o.discountPercent != null && ` − ${o.discountPercent}% off`}
+                                    {o.discountAmount != null && ` − NPR ${o.discountAmount} off`}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        )}
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="discountType"
+                            checked={discountType === "loyalty"}
+                            onChange={() => {
+                              setDiscountType("loyalty");
+                              setSelectedOfferCode("");
+                              setSelectedRewardId("");
+                            }}
+                            className="rounded border-white/30 text-[#8B0000] focus:ring-[#8B0000]"
+                          />
+                          <span className="text-xs text-gray-300">Rewards & Benefits</span>
+                          {loyaltyPoints > 0 && (
+                            <span className="text-[10px] text-amber-300">({loyaltyPoints} pts)</span>
+                          )}
+                        </label>
+                        {discountType === "loyalty" && (
+                          <div className="pl-5">
+                            {discountLoading ? (
+                              <span className="text-[11px] text-gray-500">Loading rewards…</span>
+                            ) : (
+                              <select
+                                value={selectedRewardId}
+                                onChange={(e) => setSelectedRewardId(e.target.value)}
+                                className="mt-1 w-full rounded-lg border border-white/20 bg-black/40 px-2 py-1.5 text-xs text-white focus:border-[#8B0000] focus:outline-none"
+                              >
+                                <option value="">Select reward</option>
+                                {rewards
+                                  .filter((r) => r.pointsRequired <= loyaltyPoints && r.pointsRequired <= grandTotal)
+                                  .map((r) => (
+                                    <option key={r._id} value={r._id}>
+                                      {r.title}
+                                      {r.subtitle ? ` − ${r.subtitle}` : ""} ({r.pointsRequired} pts = NPR {r.pointsRequired} off)
+                                    </option>
+                                  ))}
+                                {rewards.length > 0 && rewards.every((r) => r.pointsRequired > loyaltyPoints || r.pointsRequired > grandTotal) && (
+                                  <option value="" disabled>
+                                    No rewards available (need more points or lower order total)
+                                  </option>
+                                )}
+                              </select>
+                            )}
+                            {rewards.length === 0 && !discountLoading && (
+                              <p className="mt-0.5 text-[10px] text-gray-500">No rewards available.</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {discountAmount > 0 && (
+                        <div className="flex items-center justify-between text-xs text-emerald-300 mb-1">
+                          <span>Discount</span>
+                          <span>− NPR {discountAmount.toLocaleString()}</span>
+                        </div>
+                      )}
+                      <div className="my-2 h-px bg-white/10" />
+                    </>
+                  )}
                   <div className="flex items-center justify-between text-sm font-semibold text-white pt-2">
                     <span>{step >= 5 ? "Grand total" : "Total"}</span>
-                    <span>NPR {grandTotal.toLocaleString()}</span>
+                    <span>NPR {(step >= 5 ? grandTotalAfterDiscount : grandTotal).toLocaleString()}</span>
                   </div>
                 </div>
 
@@ -995,7 +1180,7 @@ export default function MovieBookingPage() {
                   {step >= 5 && (
                     <button
                       type="button"
-                      onClick={proceedToPayment}
+                      onClick={() => void proceedToPayment()}
                       className="w-full rounded-full bg-gradient-to-r from-[#8B0000] to-[#A00000] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_40px_rgba(0,0,0,0.9)] hover:shadow-[0_18px_50px_rgba(0,0,0,1)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       disabled={
                         !city ||

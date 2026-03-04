@@ -24,9 +24,9 @@ export default function AdminSalesPage() {
   const [to, setTo] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [overall, setOverall] = useState<SummaryOverall | null>(null);
-  const [byMovie, setByMovie] = useState<SummaryByMovie | null>(null);
-  const [byDay, setByDay] = useState<SummaryByDay | null>(null);
+  const [overall, setOverall] = useState<SalesSummaryOverall | null>(null);
+  const [byMovie, setByMovie] = useState<SalesSummaryByMovie | null>(null);
+  const [byDay, setByDay] = useState<SalesSummaryByDay | null>(null);
 
   const fetchData = async () => {
     try {

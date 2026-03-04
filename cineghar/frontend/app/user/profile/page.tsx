@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getProfileApi, updateProfileApi } from "@/lib/api/auth";
 import type { AuthUser } from "@/lib/api/auth";
+import { getMyOrdersApi, type OrderItem } from "@/lib/api/orders";
 import { useAuth } from "@/contexts/AuthContext";
 import { ROUTES } from "@/utils/constants";
 import FormInput from "@/app/_components/FormInput";
@@ -25,6 +26,8 @@ type ProfileFormInputs = z.infer<typeof profileSchema>;
 
 export default function UserProfilePage() {
   const [profile, setProfile] = useState<AuthUser | null>(null);
+  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -60,6 +63,20 @@ export default function UserProfilePage() {
     };
     void fetchProfile();
   }, [reset]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await getMyOrdersApi({ limit: 20 });
+        if (res.success && Array.isArray(res.data)) setOrders(res.data);
+      } catch {
+        // non-blocking; profile is primary
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+    void fetchOrders();
+  }, []);
 
   const onSubmit = async (data: ProfileFormInputs) => {
     setError(null);
@@ -171,6 +188,52 @@ export default function UserProfilePage() {
               Save Profile
             </Button>
           </form>
+        </div>
+
+        {/* Order history */}
+        <div className="mt-8 rounded-xl bg-white p-6 shadow-lg">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Order history</h2>
+          {ordersLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#8B0000] border-t-transparent" />
+            </div>
+          ) : orders.length === 0 ? (
+            <p className="text-sm text-gray-500 py-4">You haven’t placed any orders yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase text-gray-500">
+                    <th className="pb-2 pr-4">Date</th>
+                    <th className="pb-2 pr-4">Movie</th>
+                    <th className="pb-2 pr-4">Seats</th>
+                    <th className="pb-2 pr-4">Amount</th>
+                    <th className="pb-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {orders.map((order) => (
+                    <tr key={order._id} className="text-gray-700">
+                      <td className="py-3 pr-4">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-3 pr-4">{order.movieTitle || "—"}</td>
+                      <td className="py-3 pr-4">
+                        {order.seats?.slice(0, 4).join(", ")}
+                        {order.seats?.length > 4 ? "…" : ""}
+                      </td>
+                      <td className="py-3 pr-4">NPR {order.amount.toLocaleString()}</td>
+                      <td className="py-3">
+                        <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                          {order.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

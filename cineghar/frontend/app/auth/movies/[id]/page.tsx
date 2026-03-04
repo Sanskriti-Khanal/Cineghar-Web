@@ -31,7 +31,7 @@ export default function MovieDetailsPage() {
         if (res.success && res.data) {
           setMovie(res.data);
         } else {
-          setError(res.message || "Movie not found");
+          setError("Movie not found");
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch movie");

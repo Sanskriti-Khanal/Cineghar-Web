@@ -2,10 +2,12 @@ import axios from "./axios";
 import { API } from "./endpoints";
 
 interface InitiateKhaltiPayload {
-  amount: number; // in NPR (rupees)
+  amount: number; // in NPR (rupees) – subtotal before discount
   purchaseOrderId: string;
   purchaseOrderName: string;
   metadata?: Record<string, unknown>;
+  offerCode?: string;
+  loyaltyPointsToRedeem?: number;
 }
 
 interface ApiResponse<T> {
@@ -51,6 +53,17 @@ export const lookupKhaltiPaymentApi = async (pidx: string) => {
   const { data } = await axios.post<ApiResponse<KhaltiLookupResponse>>(
     API.PAYMENT.KHALTI_LOOKUP,
     { pidx }
+  );
+  return data;
+};
+
+export const confirmPaymentApi = async (payload: {
+  pidx: string;
+  purchaseOrderId: string;
+}) => {
+  const { data } = await axios.post<ApiResponse<{ _id: string }>>(
+    API.PAYMENT.CONFIRM,
+    payload
   );
   return data;
 };

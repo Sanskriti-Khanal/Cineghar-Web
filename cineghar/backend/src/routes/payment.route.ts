@@ -17,5 +17,11 @@ router.post(
   paymentController.lookupKhaltiPayment.bind(paymentController)
 );
 
+router.post(
+  "/confirm",
+  authorizedMiddleware,
+  paymentController.confirmPayment.bind(paymentController)
+);
+
 export default router;
 

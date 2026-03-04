@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
@@ -30,7 +30,7 @@ export default function AdminCreateHallPage() {
     formState: { errors, isSubmitting },
     reset,
   } = useForm<HallFormInputs>({
-    resolver: zodResolver(hallSchema),
+    resolver: zodResolver(hallSchema) as Resolver<HallFormInputs>,
     defaultValues: {
       city: "Kathmandu",
     },

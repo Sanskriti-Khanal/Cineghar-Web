@@ -42,6 +42,9 @@ const userMongoSchema = new mongoose_1.Schema({
     dateOfBirth: { type: String, required: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     imageUrl: { type: String, required: false },
+    resetPasswordToken: { type: String, required: false },
+    resetPasswordExpires: { type: Date, required: false },
+    loyaltyPoints: { type: Number, required: false, default: 0 },
 }, {
     timestamps: true,
 });

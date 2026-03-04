@@ -11,11 +11,33 @@ class UserRepository {
         const users = await user_model_1.UserModel.find().select("-password");
         return users;
     }
+    async findAllPaginated(page, limit) {
+        const skip = (page - 1) * limit;
+        const [users, total] = await Promise.all([
+            user_model_1.UserModel.find().select("-password").skip(skip).limit(limit).lean(),
+            user_model_1.UserModel.countDocuments(),
+        ]);
+        return { users: users, total };
+    }
+    async getUsersPaginated(skip, limit) {
+        const [users, total] = await Promise.all([
+            user_model_1.UserModel.find().select("-password").skip(skip).limit(limit).lean(),
+            user_model_1.UserModel.countDocuments(),
+        ]);
+        return { users: users, total };
+    }
     async updateUser(userId, updateData) {
         const updateUser = await user_model_1.UserModel.findByIdAndUpdate(userId, updateData, {
             new: true,
         }).select("-password");
         return updateUser;
+    }
+    async setPasswordAndClearResetToken(userId, hashedPassword) {
+        const user = await user_model_1.UserModel.findByIdAndUpdate(userId, {
+            password: hashedPassword,
+            $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 },
+        }, { new: true }).select("-password");
+        return user;
     }
     async deleteUser(userId) {
         const result = await user_model_1.UserModel.findByIdAndDelete(userId);
@@ -28,6 +50,13 @@ class UserRepository {
     }
     async getUserByEmail(email) {
         const user = await user_model_1.UserModel.findOne({ email: email });
+        return user;
+    }
+    async getUserByResetToken(token) {
+        const user = await user_model_1.UserModel.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: new Date() },
+        });
         return user;
     }
 }

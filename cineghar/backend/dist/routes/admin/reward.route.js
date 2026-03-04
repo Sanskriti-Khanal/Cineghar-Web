@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const reward_controller_1 = require("../../controllers/admin/reward.controller");
+const authorized_middleware_1 = require("../../middlewares/authorized.middleware");
+const router = (0, express_1.Router)();
+const controller = new reward_controller_1.AdminRewardController();
+router.get("/", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, controller.list.bind(controller));
+router.get("/:id", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, controller.getOne.bind(controller));
+router.post("/", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, controller.create.bind(controller));
+router.put("/:id", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, controller.update.bind(controller));
+router.delete("/:id", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, controller.remove.bind(controller));
+exports.default = router;

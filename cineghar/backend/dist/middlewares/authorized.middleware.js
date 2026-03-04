@@ -27,9 +27,13 @@ const authorizedMiddleware = async (req, res, next) => {
         next();
     }
     catch (err) {
-        return res.status(err.statusCode || 500).json({
+        const status = err.statusCode ??
+            (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError"
+                ? 401
+                : 500);
+        return res.status(status).json({
             success: false,
-            message: err.message,
+            message: err.message ?? "Unauthorized",
         });
     }
 };

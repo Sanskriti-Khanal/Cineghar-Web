@@ -4,12 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
+const crypto_1 = __importDefault(require("crypto"));
 const user_repository_1 = require("../repositories/user.repository");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const http_error_1 = require("../errors/http-error");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const configs_1 = require("../configs");
+const email_service_1 = require("./email.service");
+const RESET_TOKEN_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
 let userRepository = new user_repository_1.UserRepository();
+const emailService = new email_service_1.EmailService();
 class UserService {
     async registerUser(userData) {
         const checkEmail = await userRepository.getUserByEmail(userData.email);
@@ -82,6 +86,34 @@ class UserService {
         const userResponse = user.toObject();
         delete userResponse.password;
         return { token, user: userResponse };
+    }
+    /** Generate secure reset token, save with expiry, and send reset link email; no-op if user not found. */
+    async requestPasswordReset(email) {
+        const user = await userRepository.getUserByEmail(email);
+        if (!user)
+            return;
+        const token = crypto_1.default.randomBytes(32).toString("hex");
+        const expires = new Date(Date.now() + RESET_TOKEN_EXPIRY_MS);
+        await userRepository.updateUser(user._id.toString(), {
+            resetPasswordToken: token,
+            resetPasswordExpires: expires,
+        });
+        try {
+            await emailService.sendResetPasswordEmail(user.email, token);
+        }
+        catch (err) {
+            console.error("Failed to send reset password email:", err);
+            // Do not throw; API still returns generic success to avoid leaking user existence
+        }
+    }
+    /** Verify token + expiry, hash new password, update user and clear reset token. */
+    async resetPassword(token, newPassword) {
+        const user = await userRepository.getUserByResetToken(token);
+        if (!user) {
+            throw new http_error_1.HttpError(400, "Invalid or expired reset token");
+        }
+        const hashedPassword = await bcryptjs_1.default.hash(newPassword, 10);
+        await userRepository.setPasswordAndClearResetToken(user._id.toString(), hashedPassword);
     }
 }
 exports.UserService = UserService;

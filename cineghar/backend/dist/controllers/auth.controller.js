@@ -4,10 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
 const user_service_1 = require("../services/user.service");
 const user_dto_1 = require("../dtos/user.dto");
 const zod_1 = __importDefault(require("zod"));
 const userService = new user_service_1.UserService();
+function isValidObjectId(id) {
+    return mongoose_1.default.Types.ObjectId.isValid(id) && new mongoose_1.default.Types.ObjectId(id).toString() === id;
+}
 class AuthController {
     async getProfile(req, res) {
         try {
@@ -91,7 +95,13 @@ class AuthController {
     }
     async getOneUser(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = String(req.params.id);
+            if (!isValidObjectId(userId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid user ID",
+                });
+            }
             const user = await userService.getOneUser(userId);
             return res.status(200).json({
                 success: true,
@@ -124,7 +134,13 @@ class AuthController {
     }
     async deleteUser(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = String(req.params.id);
+            if (!isValidObjectId(userId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid user ID",
+                });
+            }
             await userService.deleteOneUser(userId);
             return res.status(200).json({
                 success: true,
@@ -140,7 +156,13 @@ class AuthController {
     }
     async updateUser(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = String(req.params.id);
+            if (!isValidObjectId(userId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid user ID",
+                });
+            }
             const parsed = user_dto_1.UpdateUserDto.safeParse(req.body);
             if (!parsed.success) {
                 return res.status(400).json({
@@ -165,7 +187,13 @@ class AuthController {
     /** PUT /api/auth/:id - update user by id (self or admin), with optional image */
     async updateUserById(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = String(req.params.id);
+            if (!isValidObjectId(userId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid user ID",
+                });
+            }
             const parsed = user_dto_1.UpdateUserDto.safeParse(req.body);
             if (!parsed.success) {
                 return res.status(400).json({
@@ -206,6 +234,51 @@ class AuthController {
                 message: "Login successful",
                 data: user,
                 token,
+            });
+        }
+        catch (error) {
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message || "Internal Server Error",
+            });
+        }
+    }
+    async forgotPassword(req, res) {
+        try {
+            const parsed = user_dto_1.ForgotPasswordDto.safeParse(req.body);
+            if (!parsed.success) {
+                return res.status(400).json({
+                    success: false,
+                    message: zod_1.default.prettifyError(parsed.error),
+                });
+            }
+            await userService.requestPasswordReset(parsed.data.email);
+            // Always return success to avoid leaking whether the email exists
+            return res.status(200).json({
+                success: true,
+                message: "If an account exists with this email, you will receive password reset instructions.",
+            });
+        }
+        catch (error) {
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message || "Internal Server Error",
+            });
+        }
+    }
+    async resetPassword(req, res) {
+        try {
+            const parsed = user_dto_1.ResetPasswordDto.safeParse(req.body);
+            if (!parsed.success) {
+                return res.status(400).json({
+                    success: false,
+                    message: zod_1.default.prettifyError(parsed.error),
+                });
+            }
+            await userService.resetPassword(parsed.data.token, parsed.data.password);
+            return res.status(200).json({
+                success: true,
+                message: "Password has been reset successfully.",
             });
         }
         catch (error) {

@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdminUserController = void 0;
 const user_service_1 = require("../../services/admin/user.service");
 const user_dto_1 = require("../../dtos/user.dto");
+const pagination_dto_1 = require("../../dtos/pagination.dto");
 const zod_1 = __importDefault(require("zod"));
 let adminUserService = new user_service_1.AdminUserService();
 class AdminUserController {
@@ -38,7 +39,7 @@ class AdminUserController {
     }
     async getOneUser(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = String(req.params.id);
             const user = await adminUserService.getOneUser(userId);
             return res.status(200).json({
                 success: true,
@@ -55,10 +56,21 @@ class AdminUserController {
     }
     async getAllUsers(req, res) {
         try {
-            const users = await adminUserService.getAllUsers();
+            const parsed = pagination_dto_1.PaginationDto.safeParse(req.query);
+            if (!parsed.success) {
+                return res.status(400).json({
+                    success: false,
+                    message: zod_1.default.prettifyError(parsed.error),
+                });
+            }
+            const result = await adminUserService.getAllUsers(parsed.data);
             return res.status(200).json({
                 success: true,
-                data: users,
+                data: result.data,
+                page: result.page,
+                limit: result.limit,
+                totalPages: result.totalPages,
+                totalUsers: result.total,
                 message: "Users fetched successfully",
             });
         }
@@ -71,7 +83,7 @@ class AdminUserController {
     }
     async deleteUser(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = String(req.params.id);
             await adminUserService.deleteOneUser(userId);
             return res.status(200).json({
                 success: true,
@@ -87,7 +99,7 @@ class AdminUserController {
     }
     async updateUser(req, res) {
         try {
-            const userId = req.params.id;
+            const userId = String(req.params.id);
             const parsed = user_dto_1.UpdateUserDto.safeParse(req.body);
             if (!parsed.success) {
                 return res.status(400).json({

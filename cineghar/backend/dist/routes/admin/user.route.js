@@ -8,7 +8,7 @@ const router = (0, express_1.Router)();
 const adminUserController = new auth_controller_1.AdminUserController();
 // POST /api/admin/users - create user with optional image (Multer)
 router.post("/", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, upload_middleware_1.uploads.single("image"), adminUserController.createUser.bind(adminUserController));
-// GET /api/admin/users
+// GET /api/admin/users - admin only; query: page, limit; response: { data, page, limit, totalPages, totalUsers }
 router.get("/", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, adminUserController.getAllUsers.bind(adminUserController));
 // GET /api/admin/users/:id
 router.get("/:id", authorized_middleware_1.authorizedMiddleware, authorized_middleware_1.adminMiddleware, adminUserController.getOneUser.bind(adminUserController));
